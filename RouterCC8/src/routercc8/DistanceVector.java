@@ -35,7 +35,7 @@ public class DistanceVector {
                 dv.add(nombre + ":" + arr[0] + ":" + arr[1]);
                 adyacentes++;
                 ady.put(arr[0], 0); //saber cuales son adyacentes
-                mins.put(arr[0], arr[0] + ":"+ arr[1]);
+                mins.put(arr[0], arr[0] + ":" + arr[1]);
                 //A-B:3
                 //A-C:23
             }
@@ -46,7 +46,7 @@ public class DistanceVector {
 
     }
 
-    public void reciveMinimo(String router, String destino, int costo) {
+    public void recibeMinimo(String router, String destino, int costo) {
         if (destino != nombre || !ady.containsKey(router)) {
             String entry = router + ":" + destino + ":" + costo;
 
@@ -64,77 +64,121 @@ public class DistanceVector {
     }
 
     public boolean calcular() {
-        boolean isDirty=false;
+        boolean isDirty = false;
         for (int i = 0; i < dv.size(); i++) {
             String[] arr = dv.elementAt(i).toString().split(":", 3);
             try {
-                String [] minimo = mins.get(arr[1]).split(":");
+                String[] minimo = mins.get(arr[1]).split(":");
                 if (Integer.parseInt(minimo[1]) > Integer.parseInt(arr[2])) {
-                    mins.put(arr[1], arr[0]+":"+arr[2]);
-                    isDirty= true;
+                    mins.put(arr[1], arr[0] + ":" + arr[2]);
+                    isDirty = true;
                 }
             } catch (NullPointerException e) {
-                mins.put(arr[1],  arr[0]+":"+arr[2]);
-                isDirty=true;
+                mins.put(arr[1], arr[0] + ":" + arr[2]);
+                isDirty = true;
 
             }
 
         }
+        limpiarDV();
         return isDirty;
     }
 
+    public void limpiarDV() {
+        int tamaño = dv.size();
+        for (int i = 0; i < tamaño; i++) {
+            String[] arr = dv.elementAt(i).toString().split(":", 3);
+            for (int j = i+1; j < tamaño; j++) {
+                String[] arr2 = dv.elementAt(j).toString().split(":", 3);
+                if ((arr[0].equals(arr2[0])) && (arr[1].equals(arr2[1]))) {
+                    if (Integer.parseInt(arr[2]) < Integer.parseInt(arr2[2])) {
+                        tamaño--;
+                        dv.remove(j);
+                    } else {
+                        dv.set(i, arr[0] +":" + arr[1]+":" +arr2[2]);
+                        dv.remove(j);
+                        tamaño--;
+
+                    }
+                }
+
+            }
+        }
+
+    }
+
     public static void main(String args[]) {
-        DistanceVector d = new DistanceVector("A", ".\\build\\classes\\routercc8\\conf.ini");
-        System.out.println(d.mins.toString());
-        
-        d.reciveMinimo("B", "C", 2);
-        d.reciveMinimo("B", "A", 3);
-        if(d.calcular())
-            System.out.println("Cambio Minimos");
-        System.out.println(d.mins.toString());
+        DistanceVector d = new DistanceVector("B", ".\\src\\routercc8\\conf.ini");
+        System.out.println("Start:" + d.mins.toString());
+        System.out.println(d.dv.toString());
 
-        d.reciveMinimo("C", "D", 5);
-        d.reciveMinimo("C", "B", 2);
-        d.reciveMinimo("C", "A", 23);
-        if(d.calcular())
+        d.recibeMinimo("A", "B", 3);
+        d.recibeMinimo("A", "C", 23);
+        if (d.calcular()) {
             System.out.println("Cambio Minimos");
+        }
         System.out.println(d.mins.toString());
+        System.out.println(d.dv.toString());
 
-        
-        d.reciveMinimo("D", "C", 5);
-        if(d.calcular())
+        d.recibeMinimo("C", "D", 5);
+        d.recibeMinimo("C", "B", 2);
+        d.recibeMinimo("C", "A", 23);
+        if (d.calcular()) {
             System.out.println("Cambio Minimos");
+        }
         System.out.println(d.mins.toString());
-     
-        
+        System.out.println(d.dv.toString());
+
+        d.recibeMinimo("D", "C", 5);
+        if (d.calcular()) {
+            System.out.println("Cambio Minimos");
+        }
+        System.out.println(d.mins.toString());
+        System.out.println(d.dv.toString());
+
+        System.out.println("T1");
+        System.out.println();
         //T  = 1;
-        d.reciveMinimo("B","D",7);
-        if(d.calcular())
+        d.recibeMinimo("A", "C", 5);
+        d.recibeMinimo("A", "D", 28);
+        if (d.calcular()) {
             System.out.println("Cambio Minimos");
+        }
         System.out.println(d.mins.toString());
-        
-        
-        
-        d.reciveMinimo("C","A",5);
-        if(d.calcular())
-            System.out.println("Cambio Minimos");
-        System.out.println(d.mins.toString());
-        
-        
-        d.reciveMinimo("D","A",28);
-        d.reciveMinimo("D","B",7);
-        if(d.calcular())
-            System.out.println("Cambio Minimos");
-        System.out.println(d.mins.toString());
+        System.out.println(d.dv.toString());
 
+        d.recibeMinimo("C", "A", 5);
+        if (d.calcular()) {
+            System.out.println("Cambio Minimos");
+        }
+        System.out.println(d.mins.toString());
+        System.out.println(d.dv.toString());
+
+        d.recibeMinimo("D", "A", 28);
+        d.recibeMinimo("D", "B", 7);
+        if (d.calcular()) {
+            System.out.println("Cambio Minimos");
+        }
+        System.out.println(d.mins.toString());
+        System.out.println(d.dv.toString());
 
         //T=2
-        
-        
-        d.reciveMinimo("D","B",10);
-        if(d.calcular())
+        System.out.println("T2");
+        System.out.println();
+
+        d.recibeMinimo("D", "A", 10);
+        if (d.calcular()) {
             System.out.println("Cambio Minimos");
+        }
         System.out.println(d.mins.toString());
+        System.out.println(d.dv.toString());
+
+        d.recibeMinimo("A", "D", 10);
+        if (d.calcular()) {
+            System.out.println("Cambio Minimos");
+        }
+        System.out.println(d.mins.toString());
+
         System.out.println(d.dv.toString());
     }
 
