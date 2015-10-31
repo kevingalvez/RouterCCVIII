@@ -35,6 +35,7 @@ public class Conexion  implements Runnable{
             outToServer.write("From:"+this.myname);
             outToServer.newLine();
             outToServer.write("Type:HELLO");
+            outToServer.newLine();
             outToServer.flush();
         } catch (Exception e) {
             
@@ -43,10 +44,21 @@ public class Conexion  implements Runnable{
     
     public boolean esperaRespuesta(BufferedReader inFromServer)
     {
+        int TotalLineas = 2, cont = 0;
         try
         {
-            String temp = inFromServer.readLine();
-            System.out.println(temp);
+            while (cont < TotalLineas) 
+            {
+                String msg = inFromServer.readLine();
+                String[] arr = msg.split(":");
+                if (arr[0].equals("FROM")) {
+                    System.out.println(arr);
+                    cont++;
+                } else if (arr[0].equals("TYPE")) {
+                    cont++;
+                    System.out.println(arr);
+                } 
+            }
         } catch (Exception ex)
         {
             

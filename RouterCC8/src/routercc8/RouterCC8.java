@@ -5,6 +5,9 @@
  */
 package routercc8;
 
+import java.net.ServerSocket;
+import java.net.Socket;
+
 /**
  *
  * @author KevinAlfonso
@@ -13,9 +16,18 @@ public class RouterCC8 {
 
     
     
-    public static void main(String[] args) {
-        // TODO code application logic here
-        System.out.println("Hello World.");
-    }
+    public static void main(String args[]) throws Exception{
+        System.out.println("Hello");
+        int MaxThreads = 5;
+        int portNumber = 9080;
+        int ka = 90;
+        ServerSocket welcomeSocket = new ServerSocket(portNumber);
+        ThreadPool thread = new ThreadPool(MaxThreads,1);
+         while(true) {             
+            Socket connectionSocket = welcomeSocket.accept();
+            Conexion request = new Conexion(connectionSocket, "B", ka,"A");
+            thread.execute(request);
+         } 	        
+    }        
     
 }
