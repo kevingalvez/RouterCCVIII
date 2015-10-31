@@ -52,11 +52,11 @@ public class Conexion  implements Runnable{
                 String msg = inFromServer.readLine();
                 String[] arr = msg.split(":");
                 if (arr[0].equals("FROM")) {
-                    System.out.println(arr);
+                    System.out.println(arr[0]+":"+arr[1]);
                     cont++;
                 } else if (arr[0].equals("TYPE")) {
                     cont++;
-                    System.out.println(arr);
+                    System.out.println(arr[0]+":"+arr[1]);
                 } 
             }
         } catch (Exception ex)
@@ -87,6 +87,7 @@ public class Conexion  implements Runnable{
             {
                 mandaHello(outToServer);
                 esperaRespuesta(inFromServer);
+                Thread.sleep(10000);
 
             } catch (Exception e) {
 
