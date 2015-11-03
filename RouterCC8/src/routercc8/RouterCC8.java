@@ -25,8 +25,8 @@ public class RouterCC8 {
         ThreadPool thread = new ThreadPool(MaxThreads,1);
          while(true) {             
             Socket connectionSocket = welcomeSocket.accept();
-            Conexion request = new Conexion(connectionSocket, "B", ka,"A");
-            thread.execute(request);
+           // Conexion request = new Conexion(connectionSocket, "B", ka,"A");
+           // thread.execute(request);
          } 	        
     }        
     

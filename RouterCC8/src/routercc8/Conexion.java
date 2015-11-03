@@ -48,6 +48,56 @@ public class Conexion implements Runnable {
             outToServer.newLine();
             outToServer.flush();
             cliente.close();
+        } catch (ConnectException ex) {
+            System.out.println("Server " + IP + " not listening on port " + port);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void mandaKeepAlive(int port, String myName, HashMap ady) {
+
+        try {
+            Iterator entries = ady.entrySet().iterator();
+            while (entries.hasNext()) {
+                Map.Entry entry = (Map.Entry) entries.next();
+
+                Socket cliente = new Socket(entry.getValue().toString(), port);
+                BufferedWriter outToServer = new BufferedWriter(new OutputStreamWriter(cliente.getOutputStream()));
+                outToServer.write("From:" + myName);
+                outToServer.newLine();
+                outToServer.write("Type:KeepAlive");
+                outToServer.newLine();
+                outToServer.flush();
+                cliente.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void mandaMinimos(int port, String myName, Vector dv, HashMap ady) {
+
+        try {
+            Iterator entries = ady.entrySet().iterator();
+            while (entries.hasNext()) {
+                Map.Entry entry = (Map.Entry) entries.next();
+
+                Socket cliente = new Socket(entry.getValue().toString(), port);
+                BufferedWriter outToServer = new BufferedWriter(new OutputStreamWriter(cliente.getOutputStream()));
+                outToServer.write("From:" + myName);
+                outToServer.newLine();
+                outToServer.write("Type:DV");
+                outToServer.newLine();
+                outToServer.write("Len:" + dv.size());
+                outToServer.newLine();
+                for (int i = 0; i < dv.size(); i++) {
+                    outToServer.write(dv.get(i).toString());
+                    outToServer.newLine();
+                }
+                outToServer.flush();
+                cliente.close();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -100,13 +150,6 @@ public class Conexion implements Runnable {
                             String[] ady = inFromServer.readLine().split(":");
                             dv.recibeMinimo(from, arr[0], Integer.parseInt(ady[1]));
                         }
-                        HashMap<String, Integer> newmin = dv.calcular();
-
-                        if (!newmin.isEmpty()) {
-                            //Enviar Minimos Nuevos
-                            System.out.println("nuevos Minimos: " + newmin.toString());
-                            
-                        }
 
                     }
 
@@ -118,6 +161,11 @@ public class Conexion implements Runnable {
                 System.out.println(arr[0] + ":" + arr[1]);
             }
 
+        } catch (NullPointerException ex) {
+
+            //ex.printStackTrace();
+            //Do Nothing, no data on read
+            System.out.println("NO READ");
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -133,7 +181,7 @@ public class Conexion implements Runnable {
         try {
             //outToServer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             inFromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            esperaRespuesta(inFromServer);
+            //esperaRespuesta(inFromServer);
 
             //mandaWelcome();
         } catch (IOException e) {
@@ -153,62 +201,70 @@ public class Conexion implements Runnable {
     }
 
     public static void main(String args[]) throws Exception {
-        int MaxThreads, portNumber, keepalive, msgrouter;
-        MaxThreads = portNumber = keepalive = msgrouter = 0;
 
         JSONParser parser = new JSONParser();
         try {
-            JSONArray arr = (JSONArray) parser.parse(new FileReader("./src/routercc8/conf.json"));
+            final int MaxThreads, portNumber, keepalive, msgrouter;
+            JSONArray arry = (JSONArray) parser.parse(new FileReader("./src/routercc8/conf.json"));
 
-            JSONObject j = (JSONObject) arr.get(0);
+            JSONObject j = (JSONObject) arry.get(0);
             portNumber = Integer.parseInt(j.get("port").toString());
             MaxThreads = Integer.parseInt(j.get("maxthreads").toString());
             keepalive = Integer.parseInt(j.get("keepalive").toString());
             msgrouter = Integer.parseInt(j.get("msgrouter").toString());
 
-        } catch (Exception e) {
-            e.printStackTrace();
+            ServerSocket welcomeSocket = new ServerSocket(portNumber);
 
-        }
-        ServerSocket welcomeSocket = new ServerSocket(portNumber);
+            ThreadPool thread = new ThreadPool(MaxThreads, 1);
+            BufferedReader archivo = new BufferedReader(new FileReader("./src/routercc8/conf.ini"));
+            String read = "";
+            final String MyName = "B";
 
-        ThreadPool thread = new ThreadPool(MaxThreads, 1);
-        BufferedReader archivo = new BufferedReader(new FileReader("./src/routercc8/conf.ini"));
-        String read = "";
-        String MyName = "B";
-
-        HashMap s = new HashMap();
-        while ((read = archivo.readLine()) != null) {
-            String[] arr = read.split(":");
-            s.put(arr[0], arr[2]);
-            Conexion.mandaHello(arr[2], portNumber, MyName);
-
-        }
-
-        DistanceVector dv = new DistanceVector("B", "./src/routercc8/conf.ini");
-        Conexion.dv = dv;
-        Timer timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
-
-            @Override
-            public void run() {
-                System.out.println(dv.mins.toString());
+            HashMap s = new HashMap();
+            while ((read = archivo.readLine()) != null) {
+                String[] arr = read.split(":");
+                s.put(arr[0], arr[2]);
+                Conexion.mandaHello(arr[2], portNumber, MyName);
 
             }
 
-        }, 0, 5000);
+            DistanceVector dv = new DistanceVector("B", "./src/routercc8/conf.ini");
+            Conexion.dv = dv;
+            Timer timer = new Timer();
+            timer.scheduleAtFixedRate(new TimerTask() {
 
-        while (true) {
-            Socket connectionSocket = welcomeSocket.accept();
+                @Override
+                public void run() {
+                    Vector newmin = dv.calcular();
 
-            Conexion request = new Conexion(connectionSocket, keepalive, MyName, msgrouter, portNumber, s);
-            thread.execute(request);
-        }
+                    if (!newmin.isEmpty()) {
+                        //Enviar Minimos Nuevos
+                        Conexion.mandaMinimos(portNumber, MyName, newmin, s);
+                        System.out.println("nuevos Minimos: " + newmin.toString());
+
+                    } else {
+                        Conexion.mandaKeepAlive(portNumber, MyName, s);
+                    }
+
+                }
+
+            }, 0, msgrouter);
+
+            while (true) {
+                Socket connectionSocket = welcomeSocket.accept();
+
+                Conexion request = new Conexion(connectionSocket, keepalive, MyName, msgrouter, portNumber, s);
+                thread.execute(request);
+            }
 
 //        while (true) {
 //            Socket connectionSocket = welcomeSocket.accept();
 //            Conexion request = new Conexion(connectionSocket, adyacente, ka, "A");
 //            thread.execute(request);
 //        }
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
     }
 }
