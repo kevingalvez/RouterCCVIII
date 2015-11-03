@@ -136,8 +136,9 @@ public class DistanceVector {
 
         d.recibeMinimo("A", "B", 3);
         d.recibeMinimo("A", "C", 23);
-        if (!d.calcular().isEmpty()) {
-            System.out.println("Cambio Minimos");
+        newmin=d.calcular();
+        if (!newmin.isEmpty()) {
+            System.out.println("nuevos Minimos: "+ newmin.toString());
         }
         System.out.println(d.mins.toString());
         System.out.println(d.dv.toString());
@@ -145,15 +146,17 @@ public class DistanceVector {
         d.recibeMinimo("C", "D", 5);
         d.recibeMinimo("C", "B", 2);
         d.recibeMinimo("C", "A", 23);
-        if (!d.calcular().isEmpty()) {
-            System.out.println("Cambio Minimos");
+        newmin=d.calcular();
+        if (!newmin.isEmpty()) {
+            System.out.println("nuevos Minimos: "+ newmin.toString());
         }
         System.out.println(d.mins.toString());
         System.out.println(d.dv.toString());
 
         d.recibeMinimo("D", "C", 5);
-        if (!d.calcular().isEmpty()) {
-            System.out.println("Cambio Minimos");
+        newmin=d.calcular();
+        if (!newmin.isEmpty()) {
+            System.out.println("nuevos Minimos: "+ newmin.toString());
         }
         System.out.println(d.mins.toString());
         System.out.println(d.dv.toString());
@@ -163,23 +166,26 @@ public class DistanceVector {
         //T  = 1;
         d.recibeMinimo("A", "C", 5);
         d.recibeMinimo("A", "D", 28);
-        if (!d.calcular().isEmpty()) {
-            System.out.println("Cambio Minimos");
+        newmin=d.calcular();
+        if (!newmin.isEmpty()) {
+            System.out.println("nuevos Minimos: "+ newmin.toString());
         }
         System.out.println(d.mins.toString());
         System.out.println(d.dv.toString());
 
         d.recibeMinimo("C", "A", 5);
-        if (!d.calcular().isEmpty()) {
-            System.out.println("Cambio Minimos");
+        newmin=d.calcular();
+        if (!newmin.isEmpty()) {
+            System.out.println("nuevos Minimos: "+ newmin.toString());
         }
         System.out.println(d.mins.toString());
         System.out.println(d.dv.toString());
 
         d.recibeMinimo("D", "A", 28);
         d.recibeMinimo("D", "B", 7);
-        if (!d.calcular().isEmpty()) {
-            System.out.println("Cambio Minimos");
+        newmin=d.calcular();
+        if (!newmin.isEmpty()) {
+            System.out.println("nuevos Minimos: "+ newmin.toString());
         }
         System.out.println(d.mins.toString());
         System.out.println(d.dv.toString());
@@ -189,15 +195,17 @@ public class DistanceVector {
         System.out.println();
 
         d.recibeMinimo("D", "A", 10);
-        if (!d.calcular().isEmpty()) {
-            System.out.println("Cambio Minimos");
+        newmin=d.calcular();
+        if (!newmin.isEmpty()) {
+            System.out.println("nuevos Minimos: "+ newmin.toString());
         }
         System.out.println(d.mins.toString());
         System.out.println(d.dv.toString());
 
         d.recibeMinimo("A", "D", 10);
-        if (!d.calcular().isEmpty()) {
-            System.out.println("Cambio Minimos");
+        newmin=d.calcular();
+        if (!newmin.isEmpty()) {
+            System.out.println("nuevos Minimos: "+ newmin.toString());
         }
         System.out.println(d.mins.toString());
         System.out.println(d.getMin("A"));

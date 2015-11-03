@@ -53,7 +53,7 @@ public class Conexion implements Runnable {
         }
     }
 
-    private static void mandaWelcome(String IP,int port,String myName) {
+    private static void mandaWelcome(String IP, int port, String myName) {
         try {
 
             Socket cliente = new Socket(IP, port);
@@ -69,6 +69,7 @@ public class Conexion implements Runnable {
             e.printStackTrace();
         }
     }
+
     public boolean esperaRespuesta(BufferedReader inFromServer) {
         int TotalLineas = 2, cont = 0;
         String type = "";
@@ -76,19 +77,22 @@ public class Conexion implements Runnable {
         try {
             for (cont = 0; cont < TotalLineas; cont++) {
                 String msg = inFromServer.readLine();
-                if(msg.equals(null))
+                if (msg.equals(null)) {
                     break;
+                }
                 String[] arr = msg.split(":");
                 if (arr[0].toUpperCase().equals("FROM")) {
-                    from = arr[0];
+                    from = arr[1];
 
                 } else if (arr[0].toUpperCase().equals("TYPE")) {
                     type = arr[1];
                     if (type.toUpperCase().equals("WELCOME")) {
+                        System.out.println(from + " nos dijo welcome!!");
 
                     }
                     if (type.toUpperCase().equals("HELLO")) {
                         String IP = adyacentes.get(from).toString();
+                        mandaWelcome(IP, port, myname);
                     }
                     if (type.toUpperCase().equals("DV")) {
                         String[] message = inFromServer.readLine().split(":");
@@ -96,7 +100,13 @@ public class Conexion implements Runnable {
                             String[] ady = inFromServer.readLine().split(":");
                             dv.recibeMinimo(from, arr[0], Integer.parseInt(ady[1]));
                         }
-                        HashMap<String, Integer> d = dv.calcular();
+                        HashMap<String, Integer> newmin = dv.calcular();
+
+                        if (!newmin.isEmpty()) {
+                            //Enviar Minimos Nuevos
+                            System.out.println("nuevos Minimos: " + newmin.toString());
+                            
+                        }
 
                     }
 
