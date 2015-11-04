@@ -63,8 +63,9 @@ public class Conexion implements Runnable {
             Iterator entries = ady.entrySet().iterator();
             while (entries.hasNext()) {
                 Map.Entry entry = (Map.Entry) entries.next();
-
+                System.out.println(entry.getValue().toString());
                 Socket cliente = new Socket(entry.getValue().toString(), port);
+
                 BufferedWriter outToServer = new BufferedWriter(new OutputStreamWriter(cliente.getOutputStream()));
                 outToServer.write("From:" + myName);
                 outToServer.newLine();
@@ -72,8 +73,9 @@ public class Conexion implements Runnable {
                 outToServer.newLine();
                 outToServer.flush();
                 cliente.close();
-                System.out.println("FROM:" +myName);
+                System.out.println("<FROM:" + myName);
                 System.out.println("TYPE:KeepAlive");
+                System.out.println("TO: " +entry.getKey().toString()+ ">");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -97,7 +99,7 @@ public class Conexion implements Runnable {
                 outToServer.newLine();
                 System.out.println("From:" + myName);
                 System.out.println("Type:DV");
-                System.out.println("Len:"+ dv.size());
+                System.out.println("Len:" + dv.size());
                 for (int i = 0; i < dv.size(); i++) {
                     outToServer.write(dv.get(i).toString());
                     outToServer.newLine();
@@ -122,7 +124,7 @@ public class Conexion implements Runnable {
             outToServer.newLine();
             outToServer.flush();
             outToServer.close();
-            System.out.println("From:"+ myName);
+            System.out.println("From:" + myName);
             System.out.println("Type:Welcome");
 
         } catch (Exception e) {
@@ -148,7 +150,7 @@ public class Conexion implements Runnable {
                 } else if (arr[0].toUpperCase().equals("TYPE")) {
                     type = arr[1];
                     if (type.toUpperCase().equals("WELCOME")) {
-                        System.out.println("EsperaRespuesta Welcome " + from );
+                        System.out.println("EsperaRespuesta Welcome " + from);
 
                     }
                     if (type.toUpperCase().equals("HELLO")) {
@@ -242,7 +244,7 @@ public class Conexion implements Runnable {
 
             }
 
-            DistanceVector dv = new DistanceVector("B", "./src/routercc8/conf.ini");
+            DistanceVector dv = new DistanceVector(MyName, "./src/routercc8/conf.ini");
             Conexion.dv = dv;
             Timer timer = new Timer();
             timer.scheduleAtFixedRate(new TimerTask() {
@@ -254,7 +256,7 @@ public class Conexion implements Runnable {
 
                     if (!newmin.isEmpty()) {
                         //Enviar Minimos Nuevos
-                        
+
                         Conexion.mandaMinimos(portNumber, MyName, newmin, s);
                         System.out.println("nuevos Minimos: " + newmin.toString());
 
