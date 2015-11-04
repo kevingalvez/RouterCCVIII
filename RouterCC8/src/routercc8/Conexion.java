@@ -165,7 +165,7 @@ public class Conexion implements Runnable {
                         for (int i = 0; i < Integer.parseInt(message[1]); i++) {
                             String[] ady = inFromServer.readLine().split(":");
                             System.out.println("EsperaRespuesta dv " + ady.toString());
-                            dv.recibeMinimo(from, arr[0], Integer.parseInt(ady[1]));
+                            dv.recibeMinimo(from, ady[1], Integer.parseInt(ady[2]));
                         }
 
                     }
