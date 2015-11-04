@@ -87,7 +87,7 @@ public class DistanceVector {
             }
 
         }
-        //limpiarDV();
+        limpiarDV();
         return ret;
     }
 
