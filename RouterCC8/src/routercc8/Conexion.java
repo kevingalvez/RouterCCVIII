@@ -45,7 +45,8 @@ public class Conexion implements Runnable {
 
         try {
 
-            Socket client = new Socket(IP, port);
+            Socket client = new Socket();
+            client.connect(new InetSocketAddress(IP, port), 500);
             BufferedWriter outToServer = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()));
             outToServer.write("From:" + myName);
             outToServer.newLine();
