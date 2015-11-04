@@ -27,6 +27,8 @@ public class Conexion implements Runnable {
     Socket cliente;
 
     HashMap sockEscritura;
+    Timer timer;
+    boolean isConnected=true;
 
     //new Conexion(connectionSocket, keepalive, "A", msgrouter,  portNumber,s);
     public Conexion(Socket s, int ka, String mn, int msgRouter, int port, HashMap adyacentes, HashMap sockEscritura) {
@@ -61,6 +63,10 @@ public class Conexion implements Runnable {
             System.out.println("mandaHello: Server " + IP + " not listening on port " + port);
             return null;
 
+        } catch (SocketTimeoutException e) {
+            System.out.println("Server " + IP + " not listening on port " + port);
+            return null;
+
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -68,31 +74,6 @@ public class Conexion implements Runnable {
         }
     }
 
-//    private static void mandaKeepAlive(int port, String myName, HashMap ady) {
-//
-//        Iterator entries = ady.entrySet().iterator();
-//        while (entries.hasNext()) {
-//            Map.Entry entry = (Map.Entry) entries.next();
-//            System.out.println(entry.getValue().toString());
-//            try {
-//                Socket cliente = new Socket(entry.getValue().toString(), port);
-//
-//                BufferedWriter outToServer = new BufferedWriter(new OutputStreamWriter(cliente.getOutputStream()));
-//                outToServer.write("From:" + myName);
-//                outToServer.newLine();
-//                outToServer.write("Type:KeepAlive");
-//                outToServer.newLine();
-//                outToServer.flush();
-//                cliente.close();
-//                System.out.println("<FROM:" + myName);
-//                System.out.println("TYPE:KeepAlive");
-//                System.out.println("TO: " + entry.getKey().toString() + ">");
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-//
-//    }
     private void mandaKeepAlive() {
 
         try {
@@ -139,55 +120,6 @@ public class Conexion implements Runnable {
         }
     }
 
-//    private static void mandaMinimos(int port, String myName, Vector dv, HashMap ady) {
-//
-//        Iterator entries = ady.entrySet().iterator();
-//        while (entries.hasNext()) {
-//            Map.Entry entry = (Map.Entry) entries.next();
-//            try {
-//                Socket cliente = new Socket(entry.getValue().toString(), port);
-//                BufferedWriter outToServer = new BufferedWriter(new OutputStreamWriter(cliente.getOutputStream()));
-//
-//                outToServer.write("From:" + myName);
-//                outToServer.newLine();
-//                outToServer.write("Type:DV");
-//                outToServer.newLine();
-//                outToServer.write("Len:" + dv.size());
-//                outToServer.newLine();
-//                System.out.println("From:" + myName);
-//                System.out.println("Type:DV");
-//                System.out.println("Len:" + dv.size());
-//                for (int i = 0; i < dv.size(); i++) {
-//                    outToServer.write(dv.get(i).toString());
-//                    outToServer.newLine();
-//                    System.out.println(dv.get(i).toString());
-//                }
-//                outToServer.flush();
-//                cliente.close();
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-//
-//    }
-//    private static void mandaWelcome(String IP, int port, String myName) {
-//        try {
-//
-//            Socket cliente = new Socket(IP, port);
-//            BufferedWriter outToServer = new BufferedWriter(new OutputStreamWriter(cliente.getOutputStream()));
-//            outToServer.write("From:" + myName);
-//            outToServer.newLine();
-//            outToServer.write("Type:WELCOME");
-//            outToServer.newLine();
-//            outToServer.flush();
-//            outToServer.close();
-//            System.out.println("From:" + myName);
-//            System.out.println("Type:Welcome");
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
     private void mandaWelcome() {
         try {
 
@@ -197,7 +129,7 @@ public class Conexion implements Runnable {
             outToServer.write("Type:WELCOME");
             outToServer.newLine();
             outToServer.flush();
-           
+
             System.out.println("From:" + myname);
             System.out.println("Type:Welcome");
 
@@ -236,7 +168,7 @@ public class Conexion implements Runnable {
                         //mandaMinimos(newmin, adyacentes);
                         mandaMinimos(dv.dv, adyacentes);
 
-                        Timer timer = new Timer();
+                        timer = new Timer();
                         timer.scheduleAtFixedRate(new TimerTask() {
 
                             @Override
@@ -265,9 +197,8 @@ public class Conexion implements Runnable {
                         System.out.println("esperaRespuesta Hello " + IP);
                         cliente = new Socket(IP, port);
                         mandaWelcome();
-                        
-                        
-                        Timer timer = new Timer();
+
+                        timer = new Timer();
                         timer.scheduleAtFixedRate(new TimerTask() {
 
                             @Override
@@ -315,6 +246,8 @@ public class Conexion implements Runnable {
             //Do Nothing, no data on read
             //System.out.println("NO READ");
         } catch (Exception ex) {
+            timer.cancel();
+            isConnected=false;
             ex.printStackTrace();
         }
 
@@ -336,16 +269,18 @@ public class Conexion implements Runnable {
 
         }
 
-        while (true) {
+        while (isConnected) {
             try {
 
                 esperaRespuesta(inFromServer);
                 //Thread.sleep(5000);
 
             } catch (Exception e) {
-
+                //break;
+                
             }
         }
+        
     }
 
     public static void main(String args[]) throws Exception {
@@ -383,48 +318,11 @@ public class Conexion implements Runnable {
 
             while (true) {
                 Socket connectionSocket = welcomeSocket.accept();
-
                 Conexion request = new Conexion(connectionSocket, keepalive, MyName, msgrouter, portNumber, s, sockets);
-
-//                Iterator entries = dv.mins.entrySet().iterator();
-//                Vector newmin = new Vector();
-//                while (entries.hasNext()) {
-//                    Map.Entry entry = (Map.Entry) entries.next();
-//                    newmin.add(entry.getKey().toString() + ":" + entry.getValue().toString());
-//
-//                }
-//                request.mandaMinimos(newmin, s);
-//
-//                Timer timer = new Timer();
-//                timer.scheduleAtFixedRate(new TimerTask() {
-//
-//                    @Override
-//                    public void run() {
-//                        Vector newmin = dv.calcular();
-//                        System.out.println("Calcular");
-//                        System.out.println("DVmin." + dv.mins.toString());
-//                        System.out.println("DV" + dv.dv.toString());
-//                        if (!newmin.isEmpty()) {
-//                            //Enviar Minimos Nuevos
-//
-//                            Conexion.mandaMinimos(portNumber, MyName, newmin, s);
-//                            System.out.println("nuevos Minimos: " + newmin.toString());
-//
-//                        } else {
-//                            Conexion.mandaKeepAlive(portNumber, MyName, s);
-//                        }
-//
-//                    }
-//
-//                }, 0, msgrouter);
                 thread.execute(request);
             }
 
-//        while (true) {
-//            Socket connectionSocket = welcomeSocket.accept();
-//            Conexion request = new Conexion(connectionSocket, adyacente, ka, "A");
-//            thread.execute(request);
-//        }
+
         } catch (Exception e) {
             e.printStackTrace();
 
