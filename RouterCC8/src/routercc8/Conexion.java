@@ -38,15 +38,6 @@ public class Conexion implements Runnable {
         this.adyacentes = adyacentes;
         this.sockEscritura = sockEscritura;
 
-        Iterator entries = dv.mins.entrySet().iterator();
-        Vector newmin = new Vector();
-        while (entries.hasNext()) {
-            Map.Entry entry = (Map.Entry) entries.next();
-            newmin.add(entry.getKey().toString() + ":" + entry.getValue().toString());
-
-        }
-        mandaMinimos(newmin, adyacentes);
-
     }
 
     private static Socket mandaHello(String IP, int port, String myName) {
@@ -235,6 +226,14 @@ public class Conexion implements Runnable {
                     if (type.toUpperCase().equals("WELCOME")) {
                         System.out.println("EsperaRespuesta Welcome " + from);
                         this.cliente = (Socket) sockEscritura.get(from);
+                        Iterator entries = dv.mins.entrySet().iterator();
+                        Vector newmin = new Vector();
+                        while (entries.hasNext()) {
+                            Map.Entry entry = (Map.Entry) entries.next();
+                            newmin.add(entry.getKey().toString() + ":" + entry.getValue().toString());
+
+                        }
+                        mandaMinimos(newmin, adyacentes);
                         //mandaMinimos(newmin, s);
 
                         Timer timer = new Timer();
