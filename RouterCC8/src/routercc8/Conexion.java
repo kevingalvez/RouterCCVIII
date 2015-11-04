@@ -226,15 +226,15 @@ public class Conexion implements Runnable {
                     if (type.toUpperCase().equals("WELCOME")) {
                         System.out.println("EsperaRespuesta Welcome " + from);
                         this.cliente = (Socket) sockEscritura.get(from);
-                        Iterator entries = dv.mins.entrySet().iterator();
-                        Vector newmin = new Vector();
-                        while (entries.hasNext()) {
-                            Map.Entry entry = (Map.Entry) entries.next();
-                            newmin.add(entry.getKey().toString() + ":" + entry.getValue().toString());
-
-                        }
-                        mandaMinimos(newmin, adyacentes);
-                        //mandaMinimos(newmin, s);
+//                        Iterator entries = dv.mins.entrySet().iterator();
+//                        Vector newmin = new Vector();
+//                        while (entries.hasNext()) {
+//                            Map.Entry entry = (Map.Entry) entries.next();
+//                            newmin.add(entry.getKey().toString() + ":" + entry.getValue().toString());
+//
+//                        }
+                        //mandaMinimos(newmin, adyacentes);
+                        mandaMinimos(dv.dv, adyacentes);
 
                         Timer timer = new Timer();
                         timer.scheduleAtFixedRate(new TimerTask() {
@@ -265,6 +265,30 @@ public class Conexion implements Runnable {
                         System.out.println("esperaRespuesta Hello " + IP);
                         cliente = new Socket(IP, port);
                         mandaWelcome();
+                        
+                        
+                        Timer timer = new Timer();
+                        timer.scheduleAtFixedRate(new TimerTask() {
+
+                            @Override
+                            public void run() {
+                                Vector newmin = dv.calcular();
+                                System.out.println("Calcular");
+                                System.out.println("DVmin." + dv.mins.toString());
+                                System.out.println("DV" + dv.dv.toString());
+                                if (!newmin.isEmpty()) {
+                                    //Enviar Minimos Nuevos
+
+                                    mandaMinimos(newmin, adyacentes);
+                                    System.out.println("nuevos Minimos: " + newmin.toString());
+
+                                } else {
+                                    mandaKeepAlive();
+                                }
+
+                            }
+
+                        }, 0, msgRouter);
                     }
                     if (type.toUpperCase().equals("DV")) {
                         String[] message = inFromServer.readLine().split(":");
