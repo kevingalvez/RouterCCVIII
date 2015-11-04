@@ -25,7 +25,7 @@ public class Conexion implements Runnable {
     HashMap adyacentes;
     public static DistanceVector dv;
     Socket cliente;
-    
+
     HashMap sockEscritura;
 
     //new Conexion(connectionSocket, keepalive, "A", msgrouter,  portNumber,s);
@@ -37,7 +37,15 @@ public class Conexion implements Runnable {
         this.port = port;
         this.adyacentes = adyacentes;
         this.sockEscritura = sockEscritura;
-        
+
+        Iterator entries = dv.mins.entrySet().iterator();
+        Vector newmin = new Vector();
+        while (entries.hasNext()) {
+            Map.Entry entry = (Map.Entry) entries.next();
+            newmin.add(entry.getKey().toString() + ":" + entry.getValue().toString());
+
+        }
+        mandaMinimos(newmin, adyacentes);
 
     }
 
@@ -68,7 +76,6 @@ public class Conexion implements Runnable {
 
         }
     }
-    
 
 //    private static void mandaKeepAlive(int port, String myName, HashMap ady) {
 //
@@ -95,60 +102,51 @@ public class Conexion implements Runnable {
 //        }
 //
 //    }
-    
-        private  void mandaKeepAlive() {
+    private void mandaKeepAlive() {
 
-        
-            try {
+        try {
 
+            BufferedWriter outToServer = new BufferedWriter(new OutputStreamWriter(cliente.getOutputStream()));
+            outToServer.write("From:" + myname);
+            outToServer.newLine();
+            outToServer.write("Type:KeepAlive");
+            outToServer.newLine();
+            outToServer.flush();
 
-                BufferedWriter outToServer = new BufferedWriter(new OutputStreamWriter(cliente.getOutputStream()));
-                outToServer.write("From:" + myname);
-                outToServer.newLine();
-                outToServer.write("Type:KeepAlive");
-                outToServer.newLine();
-                outToServer.flush();
-                
-                System.out.println("<FROM:" + myname);
-                System.out.println("TYPE:KeepAlive");
-              
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            System.out.println("<FROM:" + myname);
+            System.out.println("TYPE:KeepAlive");
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+    }
 
-    
+    private void mandaMinimos(Vector dv, HashMap ady) {
 
-    private  void mandaMinimos( Vector dv, HashMap ady) {
+        try {
 
-        
-            try {
-                
-                BufferedWriter outToServer = new BufferedWriter(new OutputStreamWriter(cliente.getOutputStream()));
+            BufferedWriter outToServer = new BufferedWriter(new OutputStreamWriter(cliente.getOutputStream()));
 
-                outToServer.write("From:" + myname);
+            outToServer.write("From:" + myname);
+            outToServer.newLine();
+            outToServer.write("Type:DV");
+            outToServer.newLine();
+            outToServer.write("Len:" + dv.size());
+            outToServer.newLine();
+            System.out.println("From:" + myname);
+            System.out.println("Type:DV");
+            System.out.println("Len:" + dv.size());
+            for (int i = 0; i < dv.size(); i++) {
+                outToServer.write(dv.get(i).toString());
                 outToServer.newLine();
-                outToServer.write("Type:DV");
-                outToServer.newLine();
-                outToServer.write("Len:" + dv.size());
-                outToServer.newLine();
-                System.out.println("From:" + myname);
-                System.out.println("Type:DV");
-                System.out.println("Len:" + dv.size());
-                for (int i = 0; i < dv.size(); i++) {
-                    outToServer.write(dv.get(i).toString());
-                    outToServer.newLine();
-                    System.out.println(dv.get(i).toString());
-                }
-                outToServer.flush();
-                
-            } catch (Exception e) {
-                e.printStackTrace();
+                System.out.println(dv.get(i).toString());
             }
+            outToServer.flush();
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
-    
-
+    }
 
 //    private static void mandaMinimos(int port, String myName, Vector dv, HashMap ady) {
 //
@@ -181,7 +179,6 @@ public class Conexion implements Runnable {
 //        }
 //
 //    }
-
 //    private static void mandaWelcome(String IP, int port, String myName) {
 //        try {
 //
@@ -200,8 +197,7 @@ public class Conexion implements Runnable {
 //            e.printStackTrace();
 //        }
 //    }
-
-private void mandaWelcome() {
+    private void mandaWelcome() {
         try {
 
             BufferedWriter outToServer = new BufferedWriter(new OutputStreamWriter(cliente.getOutputStream()));
@@ -238,7 +234,7 @@ private void mandaWelcome() {
                     type = arr[1];
                     if (type.toUpperCase().equals("WELCOME")) {
                         System.out.println("EsperaRespuesta Welcome " + from);
-                        this.cliente=(Socket)sockEscritura.get(from);
+                        this.cliente = (Socket) sockEscritura.get(from);
                         //mandaMinimos(newmin, s);
 
                         Timer timer = new Timer();
@@ -263,13 +259,12 @@ private void mandaWelcome() {
                             }
 
                         }, 0, msgRouter);
-                      
 
                     }
                     if (type.toUpperCase().equals("HELLO")) {
                         String IP = adyacentes.get(from).toString();
                         System.out.println("esperaRespuesta Hello " + IP);
-                        cliente= new Socket(IP,port);
+                        cliente = new Socket(IP, port);
                         mandaWelcome();
                     }
                     if (type.toUpperCase().equals("DV")) {
@@ -352,15 +347,14 @@ private void mandaWelcome() {
 
             HashMap s = new HashMap();
             HashMap sockets = new HashMap();
-            
+
             while ((read = archivo.readLine()) != null) {
                 String[] arr = read.split(":");
                 s.put(arr[0], arr[2]);
-                sockets.put(arr[0],Conexion.mandaHello(arr[2], portNumber, MyName));
-                
+                sockets.put(arr[0], Conexion.mandaHello(arr[2], portNumber, MyName));
 
             }
-            
+
             DistanceVector dv = new DistanceVector(MyName, "./src/routercc8/conf.ini");
             Conexion.dv = dv;
 
@@ -376,7 +370,7 @@ private void mandaWelcome() {
 //                    newmin.add(entry.getKey().toString() + ":" + entry.getValue().toString());
 //
 //                }
-//                Conexion.mandaMinimos(newmin, s);
+//                request.mandaMinimos(newmin, s);
 //
 //                Timer timer = new Timer();
 //                timer.scheduleAtFixedRate(new TimerTask() {
@@ -400,7 +394,6 @@ private void mandaWelcome() {
 //                    }
 //
 //                }, 0, msgrouter);
-
                 thread.execute(request);
             }
 
