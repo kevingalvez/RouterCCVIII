@@ -48,8 +48,10 @@ public class Conexion implements Runnable {
             outToServer.newLine();
             outToServer.flush();
             cliente.close();
+            System.out.println("FROM:" + myName);
+            System.out.println("TYPE:HELLO");
         } catch (ConnectException ex) {
-            System.out.println("Server " + IP + " not listening on port " + port);
+            System.out.println("mandaHello: Server " + IP + " not listening on port " + port);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -70,6 +72,8 @@ public class Conexion implements Runnable {
                 outToServer.newLine();
                 outToServer.flush();
                 cliente.close();
+                System.out.println("FROM:" +myName);
+                System.out.println("TYPE:KeepAlive");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -91,9 +95,13 @@ public class Conexion implements Runnable {
                 outToServer.newLine();
                 outToServer.write("Len:" + dv.size());
                 outToServer.newLine();
+                System.out.println("From:" + myName);
+                System.out.println("Type:DV");
+                System.out.println("Len:"+ dv.size());
                 for (int i = 0; i < dv.size(); i++) {
                     outToServer.write(dv.get(i).toString());
                     outToServer.newLine();
+                    System.out.println(dv.get(i).toString());
                 }
                 outToServer.flush();
                 cliente.close();
@@ -114,6 +122,8 @@ public class Conexion implements Runnable {
             outToServer.newLine();
             outToServer.flush();
             outToServer.close();
+            System.out.println("From:"+ myName);
+            System.out.println("Type:Welcome");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -133,21 +143,24 @@ public class Conexion implements Runnable {
                 String[] arr = msg.split(":");
                 if (arr[0].toUpperCase().equals("FROM")) {
                     from = arr[1];
+                    System.out.println("esperaRespuesta: FROM" + from);
 
                 } else if (arr[0].toUpperCase().equals("TYPE")) {
                     type = arr[1];
                     if (type.toUpperCase().equals("WELCOME")) {
-                        System.out.println(from + " nos dijo welcome!!");
+                        System.out.println("EsperaRespuesta Welcome " + from );
 
                     }
                     if (type.toUpperCase().equals("HELLO")) {
                         String IP = adyacentes.get(from).toString();
+                        System.out.println("esperaRespuesta Hello " + IP);
                         mandaWelcome(IP, port, myname);
                     }
                     if (type.toUpperCase().equals("DV")) {
                         String[] message = inFromServer.readLine().split(":");
                         for (int i = 0; i < Integer.parseInt(message[1]); i++) {
                             String[] ady = inFromServer.readLine().split(":");
+                            System.out.println("EsperaRespuesta dv " + ady.toString());
                             dv.recibeMinimo(from, arr[0], Integer.parseInt(ady[1]));
                         }
 
@@ -155,17 +168,18 @@ public class Conexion implements Runnable {
 
                 }
                 if (type.toUpperCase().equals("KEEPALIVE")) {
+                    System.out.println("esperaRespuesta Keepalive" + from);
 
                 }
 
-                System.out.println(arr[0] + ":" + arr[1]);
+                System.out.println("esperaRespuesta Last pritnln" + arr[0] + ":" + arr[1]);
             }
 
         } catch (NullPointerException ex) {
 
             //ex.printStackTrace();
             //Do Nothing, no data on read
-            System.out.println("NO READ");
+            //System.out.println("NO READ");
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -192,7 +206,7 @@ public class Conexion implements Runnable {
             try {
 
                 esperaRespuesta(inFromServer);
-                Thread.sleep(5000);
+                //Thread.sleep(5000);
 
             } catch (Exception e) {
 
@@ -236,9 +250,11 @@ public class Conexion implements Runnable {
                 @Override
                 public void run() {
                     Vector newmin = dv.calcular();
+                    System.out.println("Calcular");
 
                     if (!newmin.isEmpty()) {
                         //Enviar Minimos Nuevos
+                        
                         Conexion.mandaMinimos(portNumber, MyName, newmin, s);
                         System.out.println("nuevos Minimos: " + newmin.toString());
 
