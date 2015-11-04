@@ -197,7 +197,7 @@ public class Conexion implements Runnable {
             outToServer.write("Type:WELCOME");
             outToServer.newLine();
             outToServer.flush();
-            outToServer.close();
+           
             System.out.println("From:" + myname);
             System.out.println("Type:Welcome");
 
