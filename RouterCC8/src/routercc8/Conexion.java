@@ -164,7 +164,7 @@ public class Conexion implements Runnable {
                         String[] message = inFromServer.readLine().split(":");
                         for (int i = 0; i < Integer.parseInt(message[1]); i++) {
                             String[] ady = inFromServer.readLine().split(":");
-                            System.out.println("EsperaRespuesta dv " + ady.toString());
+                            System.out.println("EsperaRespuesta dv " + ady[1] + ":" + ady[2]);
                             dv.recibeMinimo(from, ady[1], Integer.parseInt(ady[2]));
                         }
 
@@ -249,28 +249,7 @@ public class Conexion implements Runnable {
             DistanceVector dv = new DistanceVector(MyName, "./src/routercc8/conf.ini");
             Conexion.dv = dv;
 
-            Timer timer = new Timer();
-            timer.scheduleAtFixedRate(new TimerTask() {
-
-                @Override
-                public void run() {
-                    Vector newmin = dv.calcular();
-                    System.out.println("Calcular");
-
-                    if (!newmin.isEmpty()) {
-                        //Enviar Minimos Nuevos
-
-                        Conexion.mandaMinimos(portNumber, MyName, newmin, s);
-                        System.out.println("nuevos Minimos: " + newmin.toString());
-
-                    } else {
-                        Conexion.mandaKeepAlive(portNumber, MyName, s);
-                    }
-
-                }
-
-            }, 0, msgrouter);
-
+            int i = 0;
             while (true) {
                 Socket connectionSocket = welcomeSocket.accept();
 
@@ -282,8 +261,34 @@ public class Conexion implements Runnable {
                     newmin.add(entry.getKey().toString() + ":" + entry.getValue().toString());
 
                 }
-
                 Conexion.mandaMinimos(portNumber, MyName, newmin, s);
+
+                if (i == 0) {
+                    i++;
+                    Timer timer = new Timer();
+                    timer.scheduleAtFixedRate(new TimerTask() {
+
+                        @Override
+                        public void run() {
+                            Vector newmin = dv.calcular();
+                            System.out.println("Calcular");
+                            System.out.println("DVmin." + dv.mins.toString());
+                            System.out.println("DV" + dv.dv.toString());
+                            if (!newmin.isEmpty()) {
+                                //Enviar Minimos Nuevos
+
+                                Conexion.mandaMinimos(portNumber, MyName, newmin, s);
+                                System.out.println("nuevos Minimos: " + newmin.toString());
+
+                            } else {
+                                Conexion.mandaKeepAlive(portNumber, MyName, s);
+                            }
+
+                        }
+
+                    }, 0, msgrouter);
+
+                }
                 thread.execute(request);
             }
 
