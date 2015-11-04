@@ -127,7 +127,7 @@ public class DistanceVector {
 
             }
         }
-        mins.remove(nombre);
+        
 
     }
 
