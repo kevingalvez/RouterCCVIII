@@ -59,11 +59,11 @@ public class Conexion implements Runnable {
 
     private static void mandaKeepAlive(int port, String myName, HashMap ady) {
 
-        try {
-            Iterator entries = ady.entrySet().iterator();
-            while (entries.hasNext()) {
-                Map.Entry entry = (Map.Entry) entries.next();
-                System.out.println(entry.getValue().toString());
+        Iterator entries = ady.entrySet().iterator();
+        while (entries.hasNext()) {
+            Map.Entry entry = (Map.Entry) entries.next();
+            System.out.println(entry.getValue().toString());
+            try {
                 Socket cliente = new Socket(entry.getValue().toString(), port);
 
                 BufferedWriter outToServer = new BufferedWriter(new OutputStreamWriter(cliente.getOutputStream()));
@@ -75,22 +75,23 @@ public class Conexion implements Runnable {
                 cliente.close();
                 System.out.println("<FROM:" + myName);
                 System.out.println("TYPE:KeepAlive");
-                System.out.println("TO: " +entry.getKey().toString()+ ">");
+                System.out.println("TO: " + entry.getKey().toString() + ">");
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
+
     }
 
     private static void mandaMinimos(int port, String myName, Vector dv, HashMap ady) {
 
-        try {
-            Iterator entries = ady.entrySet().iterator();
-            while (entries.hasNext()) {
-                Map.Entry entry = (Map.Entry) entries.next();
-
+        Iterator entries = ady.entrySet().iterator();
+        while (entries.hasNext()) {
+            Map.Entry entry = (Map.Entry) entries.next();
+            try {
                 Socket cliente = new Socket(entry.getValue().toString(), port);
                 BufferedWriter outToServer = new BufferedWriter(new OutputStreamWriter(cliente.getOutputStream()));
+
                 outToServer.write("From:" + myName);
                 outToServer.newLine();
                 outToServer.write("Type:DV");
@@ -107,10 +108,11 @@ public class Conexion implements Runnable {
                 }
                 outToServer.flush();
                 cliente.close();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
+
     }
 
     private static void mandaWelcome(String IP, int port, String myName) {
@@ -246,6 +248,7 @@ public class Conexion implements Runnable {
 
             DistanceVector dv = new DistanceVector(MyName, "./src/routercc8/conf.ini");
             Conexion.dv = dv;
+
             Timer timer = new Timer();
             timer.scheduleAtFixedRate(new TimerTask() {
 
@@ -272,6 +275,15 @@ public class Conexion implements Runnable {
                 Socket connectionSocket = welcomeSocket.accept();
 
                 Conexion request = new Conexion(connectionSocket, keepalive, MyName, msgrouter, portNumber, s);
+                Iterator entries = dv.mins.entrySet().iterator();
+                Vector newmin = new Vector();
+                while (entries.hasNext()) {
+                    Map.Entry entry = (Map.Entry) entries.next();
+                    newmin.add(entry.getKey().toString() + ":" + entry.getValue().toString());
+
+                }
+
+                Conexion.mandaMinimos(portNumber, MyName, newmin, s);
                 thread.execute(request);
             }
 
