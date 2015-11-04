@@ -249,7 +249,7 @@ public class Conexion implements Runnable {
             DistanceVector dv = new DistanceVector(MyName, "./src/routercc8/conf.ini");
             Conexion.dv = dv;
 
-            int i = 0;
+         
             while (true) {
                 Socket connectionSocket = welcomeSocket.accept();
 
@@ -263,8 +263,8 @@ public class Conexion implements Runnable {
                 }
                 Conexion.mandaMinimos(portNumber, MyName, newmin, s);
 
-                if (i == 0) {
-                    i++;
+                
+                 
                     Timer timer = new Timer();
                     timer.scheduleAtFixedRate(new TimerTask() {
 
@@ -288,7 +288,7 @@ public class Conexion implements Runnable {
 
                     }, 0, msgrouter);
 
-                }
+                
                 thread.execute(request);
             }
 
