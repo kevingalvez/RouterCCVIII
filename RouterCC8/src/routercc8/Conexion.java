@@ -28,7 +28,10 @@ public class Conexion implements Runnable {
 
     HashMap sockEscritura;
     Timer timer;
-    boolean isConnected=true;
+    boolean isConnected = true;
+    int kill = 0;
+    Timer killswitch;
+    String connectedTo = "";
 
     //new Conexion(connectionSocket, keepalive, "A", msgrouter,  portNumber,s);
     public Conexion(Socket s, int ka, String mn, int msgRouter, int port, HashMap adyacentes, HashMap sockEscritura) {
@@ -87,9 +90,11 @@ public class Conexion implements Runnable {
 
             System.out.println("<FROM:" + myname);
             System.out.println("TYPE:KeepAlive");
+            System.out.println("TO:" + connectedTo + ">");
 
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("KeepAliveNotReached to:" + connectedTo);
+            //e.printStackTrace();
         }
     }
 
@@ -151,6 +156,7 @@ public class Conexion implements Runnable {
                 String[] arr = msg.split(":");
                 if (arr[0].toUpperCase().equals("FROM")) {
                     from = arr[1];
+                    connectedTo = arr[1];
                     System.out.println("esperaRespuesta: FROM" + from);
 
                 } else if (arr[0].toUpperCase().equals("TYPE")) {
@@ -190,6 +196,33 @@ public class Conexion implements Runnable {
                             }
 
                         }, 0, msgRouter);
+
+                        killswitch = new Timer();
+                        killswitch.scheduleAtFixedRate(new TimerTask() {
+
+                            @Override
+                            public void run() {
+                                kill++;
+
+                                if (kill >= keepalive) {
+                                    dv.recibeMinimo(myname, connectedTo, 99);
+                                    Vector newmin = dv.calcular();
+                                    System.out.println("Kill Calcular");
+                                    System.out.println("Kill DVmin." + dv.mins.toString());
+                                    System.out.println("Kill DV" + dv.dv.toString());
+                                    if (!newmin.isEmpty()) {
+                                        //Enviar Minimos Nuevos
+
+                                        mandaMinimos(newmin, adyacentes);
+                                    } else {
+                                        System.out.println("Kill nuevos Minimos: " + newmin.toString());
+                                    }
+                                    timer.cancel();
+                                    killswitch.cancel();
+                                }
+                            }
+
+                        }, 0, msgRouter * keepalive);
 
                     }
                     if (type.toUpperCase().equals("HELLO")) {
@@ -234,6 +267,7 @@ public class Conexion implements Runnable {
                 }
                 if (type.toUpperCase().equals("KEEPALIVE")) {
                     System.out.println("esperaRespuesta Keepalive" + from);
+                    kill = 0;
 
                 }
 
@@ -247,7 +281,7 @@ public class Conexion implements Runnable {
             //System.out.println("NO READ");
         } catch (Exception ex) {
             timer.cancel();
-            isConnected=false;
+            isConnected = false;
             ex.printStackTrace();
         }
 
@@ -277,10 +311,10 @@ public class Conexion implements Runnable {
 
             } catch (Exception e) {
                 //break;
-                
+
             }
         }
-        
+
     }
 
     public static void main(String args[]) throws Exception {
@@ -321,7 +355,6 @@ public class Conexion implements Runnable {
                 Conexion request = new Conexion(connectionSocket, keepalive, MyName, msgrouter, portNumber, s, sockets);
                 thread.execute(request);
             }
-
 
         } catch (Exception e) {
             e.printStackTrace();
