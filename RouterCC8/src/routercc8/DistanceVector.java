@@ -77,11 +77,12 @@ public class DistanceVector {
                 if (Integer.parseInt(minimo[1]) > Integer.parseInt(arr[2])) {
                     mins.put(arr[1], arr[0] + ":" + arr[2]);
                     ret.add(arr[1] + ":" + arr[2]);
-
+                    System.out.println("----------------------------------------------RETADD" + arr[1] + ":" + arr[2]);
                 }
             } catch (NullPointerException e) {
                 mins.put(arr[1], arr[0] + ":" + arr[2]);
                 ret.add(arr[1] + ":" + arr[2]);
+                System.out.println("----------------------------------------------RETADD" + arr[1] + ":" + arr[2]);
 
             }
 
