@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package routercc8;
 
 /**
@@ -32,6 +27,7 @@ public class Conexion implements Runnable {
     int kill = 0;
     Timer killswitch;
     String connectedTo = "";
+    static FnDebugger fn;
 
     //new Conexion(connectionSocket, keepalive, "A", msgrouter,  portNumber,s);
     public Conexion(Socket s, int ka, String mn, int msgRouter, int port, HashMap adyacentes, HashMap sockEscritura) {
@@ -42,6 +38,8 @@ public class Conexion implements Runnable {
         this.port = port;
         this.adyacentes = adyacentes;
         this.sockEscritura = sockEscritura;
+        fn = new FnDebugger(Thread.currentThread().getId());
+        fn.out("Creado");
 
     }
 
@@ -50,24 +48,29 @@ public class Conexion implements Runnable {
         try {
 
             Socket client = new Socket();
-            client.connect(new InetSocketAddress(IP, port), 500);
+            client.connect(new InetSocketAddress(IP, port), 2000);
             BufferedWriter outToServer = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()));
+            BufferedReader inServer = new BufferedReader(new InputStreamReader(client.getInputStream()));
             outToServer.write("From:" + myName);
             outToServer.newLine();
             outToServer.write("Type:HELLO");
             outToServer.newLine();
             outToServer.flush();
+            
+            //Check que inserver devuelva welcome
+            fn.out(":mandaHello:Welcome:" + inServer.readLine());
+            fn.out(":mandaHello:Welcome:" + inServer.readLine());
             //cliente.close();
-            System.out.println("FROM:" + myName);
-            System.out.println("TYPE:HELLO");
+            fn.out(":MandaHello:FROM:" + myName);
+            fn.out(":MandaHello:TYPE:HELLO");
             return client;
 
         } catch (ConnectException ex) {
-            System.out.println("mandaHello: Server " + IP + " not listening on port " + port);
+            fn.out(":MandaHello: Server " + IP + " not listening on port " + port);
             return null;
 
         } catch (SocketTimeoutException e) {
-            System.out.println("Server " + IP + " not listening on port " + port);
+            fn.out(":MandaHello: Server " + IP + " not listening on port " + port);
             return null;
 
         } catch (Exception e) {
@@ -88,12 +91,12 @@ public class Conexion implements Runnable {
             outToServer.newLine();
             outToServer.flush();
 
-            System.out.println("<FROM:" + myname);
-            System.out.println("TYPE:KeepAlive");
-            System.out.println("TO:" + connectedTo + ">");
+            fn.out(":MandaKeepAlive:<FROM:" + myname);
+            fn.out(":MandaKeepAlive:TYPE:KeepAlive");
+            fn.out(":MandaKeepAlive:TO:" + connectedTo + ">");
 
         } catch (Exception e) {
-            System.out.println("KeepAliveNotReached to:" + connectedTo);
+            fn.out(":MandaKeepAlive:KeepAliveNotReached to:" + connectedTo);
             //e.printStackTrace();
         }
     }
@@ -110,13 +113,13 @@ public class Conexion implements Runnable {
             outToServer.newLine();
             outToServer.write("Len:" + dv.size());
             outToServer.newLine();
-            System.out.println("From:" + myname);
-            System.out.println("Type:DV");
-            System.out.println("Len:" + dv.size());
+            fn.out(":mandaMinimos:From:" + myname);
+            fn.out(":mandaMinimos:Type:DV");
+            fn.out(":mandaMinimos:Len:" + dv.size());
             for (int i = 0; i < dv.size(); i++) {
                 outToServer.write(dv.get(i).toString());
                 outToServer.newLine();
-                System.out.println(dv.get(i).toString());
+                fn.out(":mandaMinimos:for:dvGet(i):" + dv.get(i).toString());
             }
             outToServer.flush();
 
@@ -135,8 +138,8 @@ public class Conexion implements Runnable {
             outToServer.newLine();
             outToServer.flush();
 
-            System.out.println("From:" + myname);
-            System.out.println("Type:Welcome");
+            fn.out("mandaWelcome:From:" + myname);
+            fn.out("mandaWelcome:Type:Welcome");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -157,12 +160,12 @@ public class Conexion implements Runnable {
                 if (arr[0].toUpperCase().equals("FROM")) {
                     from = arr[1];
                     connectedTo = arr[1];
-                    System.out.println("esperaRespuesta: FROM" + from);
+                    fn.out(":esperaRespuesta:FROM" + from);
 
                 } else if (arr[0].toUpperCase().equals("TYPE")) {
                     type = arr[1];
                     if (type.toUpperCase().equals("WELCOME")) {
-                        System.out.println("EsperaRespuesta Welcome " + from);
+                        fn.out(":EsperaRespuesta:Welcome " + from);
                         this.cliente = (Socket) sockEscritura.get(from);
 //                        Iterator entries = dv.mins.entrySet().iterator();
 //                        Vector newmin = new Vector();
@@ -227,7 +230,7 @@ public class Conexion implements Runnable {
                     }
                     if (type.toUpperCase().equals("HELLO")) {
                         String IP = adyacentes.get(from).toString();
-                        System.out.println("esperaRespuesta Hello " + IP);
+                        fn.out(":esperaRespuesta:Hello " + IP);
                         cliente = new Socket(IP, port);
                         mandaWelcome();
 
@@ -258,7 +261,7 @@ public class Conexion implements Runnable {
                         String[] message = inFromServer.readLine().split(":");
                         for (int i = 0; i < Integer.parseInt(message[1]); i++) {
                             String[] ady = inFromServer.readLine().split(":");
-                            System.out.println("EsperaRespuesta dv " + ady[1] + ":" + ady[2]);
+                            fn.out("EsperaRespuesta:DV:" + ady[1] + ":" + ady[2]);
                             dv.recibeMinimo(from, ady[1], Integer.parseInt(ady[2]));
                         }
 
@@ -266,12 +269,12 @@ public class Conexion implements Runnable {
 
                 }
                 if (type.toUpperCase().equals("KEEPALIVE")) {
-                    System.out.println("esperaRespuesta Keepalive" + from);
+                    fn.out("esperaRespuesta:Keepalive" + from);
                     kill = 0;
 
                 }
 
-                System.out.println("esperaRespuesta Last pritnln" + arr[0] + ":" + arr[1]);
+//                fn.out("esperaRespuesta:Last pritnln" + arr[0] + ":" + arr[1]);
             }
 
         } catch (NullPointerException ex) {
@@ -297,7 +300,7 @@ public class Conexion implements Runnable {
             //outToServer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             inFromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             //esperaRespuesta(inFromServer);
-
+//Thread.currentThread().getId()
             //mandaWelcome();
         } catch (IOException e) {
 
@@ -349,16 +352,49 @@ public class Conexion implements Runnable {
 
             DistanceVector dv = new DistanceVector(MyName, "./src/routercc8/conf.ini");
             Conexion.dv = dv;
+            new Thread() {
 
-            while (true) {
-                Socket connectionSocket = welcomeSocket.accept();
-                Conexion request = new Conexion(connectionSocket, keepalive, MyName, msgrouter, portNumber, s, sockets);
-                thread.execute(request);
-            }
+                public void run() {
+                    try {
+                        while (true) {
+                            Socket connectionSocket = welcomeSocket.accept();
+                            Conexion request = new Conexion(connectionSocket, keepalive, MyName, msgrouter, portNumber, s, sockets);
+                            thread.execute(request);
+                        }
+                    } catch (Exception e) {
 
+                    }
+                }
+
+            }.start();
+
+            ServerSocket msgSocket = new ServerSocket(1981);
+
+            new Thread() {
+
+                public void run() {
+                    while (true) {
+                        try {
+                            Socket connectionSocket = msgSocket.accept();
+                            BufferedReader inFromServer = null;
+
+                            inFromServer = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
+                            String message;
+                            while (!(message = inFromServer.readLine()).equals("EOF")) {
+                                System.out.println(message);
+                            }
+
+                        } catch (Exception e) {
+                            //break;
+
+                        }
+                    }
+                }
+            }.start();
         } catch (Exception e) {
             e.printStackTrace();
 
         }
+
     }
 }
