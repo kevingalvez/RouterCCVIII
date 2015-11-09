@@ -56,7 +56,7 @@ public class Conexion implements Runnable {
             outToServer.write("Type:HELLO");
             outToServer.newLine();
             outToServer.flush();
-            
+
             //Check que inserver devuelva welcome
             fn.out(":mandaHello:Welcome:" + inServer.readLine());
             fn.out(":mandaHello:Welcome:" + inServer.readLine());
@@ -131,7 +131,7 @@ public class Conexion implements Runnable {
     private void mandaWelcome() {
         try {
 
-            BufferedWriter outToServer = new BufferedWriter(new OutputStreamWriter(cliente.getOutputStream()));
+            BufferedWriter outToServer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             outToServer.write("From:" + myname);
             outToServer.newLine();
             outToServer.write("Type:WELCOME");
@@ -229,11 +229,21 @@ public class Conexion implements Runnable {
 
                     }
                     if (type.toUpperCase().equals("HELLO")) {
-                        String IP = adyacentes.get(from).toString();
-                        fn.out(":esperaRespuesta:Hello " + IP);
-                        cliente = new Socket(IP, port);
-                        mandaWelcome();
+                        Socket salida = (Socket) sockEscritura.get(from);
+                        if (salida.isConnected()) {
+                            cliente = salida;
+                        } else {
+                            String IP = adyacentes.get(from).toString();
+                            cliente = new Socket(IP, port);
+                            mandaHello(IP, port, myname);
+                            fn.out(":esperaRespuesta:Hello " + IP);
+                        }
 
+                        mandaWelcome();
+                        
+
+                        //check if already said Hello mandaHello
+                        //HELLO MANDA Y WELCOME USA EL MISMO SOCKET!!!
                         timer = new Timer();
                         timer.scheduleAtFixedRate(new TimerTask() {
 
