@@ -275,7 +275,7 @@ public class Conexion implements Runnable {
                                 kill++;
 
                                 if (kill >= keepalive) {
-                                    dv.recibeMinimo(connectedTo,myname, 99);
+                                    dv.recibeMinimo(myname,connectedTo, 99);
                                     Vector newmin = dv.calcular();
                                     System.out.println("Kill Calcular");
                                     System.out.println("Kill DVmin." + dv.mins.toString());

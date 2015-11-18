@@ -61,6 +61,11 @@ public class DistanceVector {
                     int total = Integer.valueOf(arr[2]) + costo;
                     dv.add(router + ":" + destino + ":" + Integer.toString(total));
                 }
+                if(costo == 99)
+                {
+                    int total = Integer.valueOf(arr[2]) + costo;
+                    dv.add(router + ":" + destino + ":" + Integer.toString(total));
+                }
 
             }
 
