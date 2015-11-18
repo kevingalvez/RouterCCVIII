@@ -58,8 +58,8 @@ public class Conexion implements Runnable {
             outToServer.flush();
 
             //Check que inserver devuelva welcome
-            fn.out(":mandaHello:Welcome:" + inServer.readLine());
-            fn.out(":mandaHello:Welcome:" + inServer.readLine());
+            //fn.out(":mandaHello:Welcome:" + inServer.readLine());
+            //fn.out(":mandaHello:Welcome:" + inServer.readLine());
             //cliente.close();
             fn.out(":MandaHello:FROM:" + myName);
             fn.out(":MandaHello:TYPE:HELLO");
