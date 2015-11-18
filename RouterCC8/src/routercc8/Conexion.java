@@ -27,7 +27,7 @@ public class Conexion implements Runnable {
     int kill = 0;
     Timer killswitch;
     String connectedTo = "";
-    static FnDebugger fn;
+    
 
     //new Conexion(connectionSocket, keepalive, "A", msgrouter,  portNumber,s);
     public Conexion(Socket s, int ka, String mn, int msgRouter, int port, HashMap adyacentes, HashMap sockEscritura) {
@@ -38,8 +38,7 @@ public class Conexion implements Runnable {
         this.port = port;
         this.adyacentes = adyacentes;
         this.sockEscritura = sockEscritura;
-        fn = new FnDebugger(Thread.currentThread().getId());
-        fn.out("Creado");
+        System.out.println("Servidor: Conexion entrante creada");
 
     }
 
@@ -57,20 +56,21 @@ public class Conexion implements Runnable {
             outToServer.newLine();
             outToServer.flush();
 
+            System.out.println(":MandaHello:FROM:" + myName);
+            System.out.println(":MandaHello:TYPE:HELLO");
             //Check que inserver devuelva welcome
             System.out.println(":mandaHello:Welcome:" + inServer.readLine());
             System.out.println(":mandaHello:Welcome:" + inServer.readLine());
             //cliente.close();
-            System.out.println(":MandaHello:FROM:" + myName);
-            System.out.println(":MandaHello:TYPE:HELLO");
+            
             return client;
 
         } catch (ConnectException ex) {
-            fn.out(":MandaHello: Server " + IP + " not listening on port " + port);
+            System.out.println(":MandaHello: Server " + IP + " not listening on port " + port);
             return null;
 
         } catch (SocketTimeoutException e) {
-            //NO fn.out because it has not been initiated
+            
             System.out.println(":MandaHello: Server " + IP + " not listening on port " + port);
             return null;
 
@@ -92,12 +92,12 @@ public class Conexion implements Runnable {
             outToServer.newLine();
             outToServer.flush();
 
-            fn.out(":MandaKeepAlive:<FROM:" + myname);
-            fn.out(":MandaKeepAlive:TYPE:KeepAlive");
-            fn.out(":MandaKeepAlive:TO:" + connectedTo + ">");
+            System.out.println("SERVIDOR:MandaKeepAlive:<FROM:" + myname);
+            System.out.println("SERVIDOR:MandaKeepAlive:TYPE:KeepAlive");
+            System.out.println("SERVIDOR:MandaKeepAlive:TO:" + connectedTo + ">");
 
         } catch (Exception e) {
-            fn.out(":MandaKeepAlive:KeepAliveNotReached to:" + connectedTo);
+            System.out.println(":MandaKeepAlive:KeepAliveNotReached to:" + connectedTo);
             //e.printStackTrace();
         }
     }
@@ -114,13 +114,13 @@ public class Conexion implements Runnable {
             outToServer.newLine();
             outToServer.write("Len:" + dv.size());
             outToServer.newLine();
-            fn.out(":mandaMinimos:From:" + myname);
-            fn.out(":mandaMinimos:Type:DV");
-            fn.out(":mandaMinimos:Len:" + dv.size());
+            System.out.println("Servidor:mandaMinimos:From:" + myname);
+            System.out.println("Servidor:mandaMinimos:Type:DV");
+            System.out.println("Servidor:mandaMinimos:Len:" + dv.size());
             for (int i = 0; i < dv.size(); i++) {
                 outToServer.write(dv.get(i).toString());
                 outToServer.newLine();
-                fn.out(":mandaMinimos:for:dvGet(i):" + dv.get(i).toString());
+                System.out.println("Servidor:mandaMinimos:for:dvGet(i):" + dv.get(i).toString());
             }
             outToServer.flush();
 
@@ -139,8 +139,8 @@ public class Conexion implements Runnable {
             outToServer.newLine();
             outToServer.flush();
 
-            fn.out("mandaWelcome:From:" + myname);
-            fn.out("mandaWelcome:Type:Welcome");
+            System.out.println("Servidor:mandaWelcome:From:" + myname);
+            System.out.println("Servidor:mandaWelcome:Type:Welcome");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -161,12 +161,12 @@ public class Conexion implements Runnable {
                 if (arr[0].toUpperCase().equals("FROM")) {
                     from = arr[1];
                     connectedTo = arr[1];
-                    fn.out(":esperaRespuesta:FROM" + from);
+                    System.out.println("CLIENTE:esperaRespuesta:FROM" + from);
 
                 } else if (arr[0].toUpperCase().equals("TYPE")) {
                     type = arr[1];
                     if (type.toUpperCase().equals("WELCOME")) {
-                        fn.out(":EsperaRespuesta:Welcome " + from);
+                        System.out.println("CLIENTE:EsperaRespuesta:Welcome " + from);
                         this.cliente = (Socket) sockEscritura.get(from);
 //                        Iterator entries = dv.mins.entrySet().iterator();
 //                        Vector newmin = new Vector();
@@ -239,7 +239,7 @@ public class Conexion implements Runnable {
                             String IP = adyacentes.get(from).toString();
                             cliente = new Socket(IP, port);
                             mandaHello(IP, port, myname);
-                            fn.out(":esperaRespuesta:Hello " + IP);
+                            System.out.println(":esperaRespuesta:Hello " + IP);
                         }
 
                         
@@ -274,7 +274,7 @@ public class Conexion implements Runnable {
                         String[] message = inFromServer.readLine().split(":");
                         for (int i = 0; i < Integer.parseInt(message[1]); i++) {
                             String[] ady = inFromServer.readLine().split(":");
-                            fn.out("EsperaRespuesta:DV:" + ady[1] + ":" + ady[2]);
+                            System.out.println("CLIENTE:" + from + ":EsperaRespuesta:DV:" + ady[1] + ":" + ady[2]);
                             dv.recibeMinimo(from, ady[1], Integer.parseInt(ady[2]));
                         }
 
@@ -282,7 +282,7 @@ public class Conexion implements Runnable {
 
                 }
                 if (type.toUpperCase().equals("KEEPALIVE")) {
-                    fn.out("esperaRespuesta:Keepalive" + from);
+                    System.out.println("CLIENTE:esperaRespuesta:Keepalive" + from);
                     kill = 0;
 
                 }
@@ -350,7 +350,7 @@ public class Conexion implements Runnable {
 
             ThreadPool thread = new ThreadPool(MaxThreads, 1);
             BufferedReader archivo = new BufferedReader(new FileReader("./src/routercc8/conf.ini"));
-            String read = "A";
+            String read = "B";
             final String MyName = "";
 
             HashMap s = new HashMap();
