@@ -29,6 +29,7 @@ public class FnDebugger {
         try {
             out.write(Message);
             out.newLine();
+            out.flush();
         } catch (Exception e) {
         }
     }

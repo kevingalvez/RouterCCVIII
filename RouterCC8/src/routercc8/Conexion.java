@@ -48,7 +48,7 @@ public class Conexion implements Runnable {
         try {
 
             Socket client = new Socket();
-            client.connect(new InetSocketAddress(IP, port), 2000);
+            client.connect(new InetSocketAddress(IP, port), 500);
             BufferedWriter outToServer = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()));
             BufferedReader inServer = new BufferedReader(new InputStreamReader(client.getInputStream()));
             outToServer.write("From:" + myName);
@@ -230,8 +230,10 @@ public class Conexion implements Runnable {
 
                     }
                     if (type.toUpperCase().equals("HELLO")) {
+                        mandaWelcome();
                         Socket salida = (Socket) sockEscritura.get(from);
-                        if (salida.isConnected()) {
+
+                        if (salida!=null) {
                             cliente = salida;
                         } else {
                             String IP = adyacentes.get(from).toString();
@@ -240,7 +242,7 @@ public class Conexion implements Runnable {
                             fn.out(":esperaRespuesta:Hello " + IP);
                         }
 
-                        mandaWelcome();
+                        
                         
 
                         //check if already said Hello mandaHello
