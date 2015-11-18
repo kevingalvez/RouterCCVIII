@@ -167,66 +167,66 @@ public class Conexion implements Runnable {
                     type = arr[1];
                     if (type.toUpperCase().equals("WELCOME")) {
 
-                        this.cliente = (Socket) sockEscritura.get(from);
-//                        Iterator entries = dv.mins.entrySet().iterator();
-//                        Vector newmin = new Vector();
-//                        while (entries.hasNext()) {
-//                            Map.Entry entry = (Map.Entry) entries.next();
-//                            newmin.add(entry.getKey().toString() + ":" + entry.getValue().toString());
+//                        this.cliente = (Socket) sockEscritura.get(from);
+////                        Iterator entries = dv.mins.entrySet().iterator();
+////                        Vector newmin = new Vector();
+////                        while (entries.hasNext()) {
+////                            Map.Entry entry = (Map.Entry) entries.next();
+////                            newmin.add(entry.getKey().toString() + ":" + entry.getValue().toString());
+////
+////                        }
+//                        //mandaMinimos(newmin, adyacentes);
+//                        mandaMinimos(dv.dv, adyacentes);
 //
-//                        }
-                        //mandaMinimos(newmin, adyacentes);
-                        mandaMinimos(dv.dv, adyacentes);
-
-                        timer = new Timer();
-                        timer.scheduleAtFixedRate(new TimerTask() {
-
-                            @Override
-                            public void run() {
-                                Vector newmin = dv.calcular();
-                                System.out.println("Calcular");
-                                System.out.println("DVmin." + dv.mins.toString());
-                                System.out.println("DV" + dv.dv.toString());
-                                if (!newmin.isEmpty()) {
-                                    //Enviar Minimos Nuevos
-
-                                    mandaMinimos(newmin, adyacentes);
-                                    System.out.println("nuevos Minimos: " + newmin.toString());
-
-                                } else {
-                                    mandaKeepAlive();
-                                }
-
-                            }
-
-                        }, 0, msgRouter);
-
-                        killswitch = new Timer();
-                        killswitch.scheduleAtFixedRate(new TimerTask() {
-
-                            @Override
-                            public void run() {
-                                kill++;
-
-                                if (kill >= keepalive) {
-                                    dv.recibeMinimo(myname, connectedTo, 99);
-                                    Vector newmin = dv.calcular();
-                                    System.out.println("Kill Calcular");
-                                    System.out.println("Kill DVmin." + dv.mins.toString());
-                                    System.out.println("Kill DV" + dv.dv.toString());
-                                    if (!newmin.isEmpty()) {
-                                        //Enviar Minimos Nuevos
-
-                                        mandaMinimos(newmin, adyacentes);
-                                    } else {
-                                        System.out.println("Kill nuevos Minimos: " + newmin.toString());
-                                    }
-                                    timer.cancel();
-                                    killswitch.cancel();
-                                }
-                            }
-
-                        }, 0, msgRouter * keepalive);
+//                        timer = new Timer();
+//                        timer.scheduleAtFixedRate(new TimerTask() {
+//
+//                            @Override
+//                            public void run() {
+//                                Vector newmin = dv.calcular();
+//                                System.out.println("Calcular");
+//                                System.out.println("DVmin." + dv.mins.toString());
+//                                System.out.println("DV" + dv.dv.toString());
+//                                if (!newmin.isEmpty()) {
+//                                    //Enviar Minimos Nuevos
+//
+//                                    mandaMinimos(newmin, adyacentes);
+//                                    System.out.println("nuevos Minimos: " + newmin.toString());
+//
+//                                } else {
+//                                    mandaKeepAlive();
+//                                }
+//
+//                            }
+//
+//                        }, 0, msgRouter);
+//
+//                        killswitch = new Timer();
+//                        killswitch.scheduleAtFixedRate(new TimerTask() {
+//
+//                            @Override
+//                            public void run() {
+//                                kill++;
+//
+//                                if (kill >= keepalive) {
+//                                    dv.recibeMinimo(myname, connectedTo, 99);
+//                                    Vector newmin = dv.calcular();
+//                                    System.out.println("Kill Calcular");
+//                                    System.out.println("Kill DVmin." + dv.mins.toString());
+//                                    System.out.println("Kill DV" + dv.dv.toString());
+//                                    if (!newmin.isEmpty()) {
+//                                        //Enviar Minimos Nuevos
+//
+//                                        mandaMinimos(newmin, adyacentes);
+//                                    } else {
+//                                        System.out.println("Kill nuevos Minimos: " + newmin.toString());
+//                                    }
+//                                    timer.cancel();
+//                                    killswitch.cancel();
+//                                }
+//                            }
+//
+//                        }, 0, msgRouter * keepalive);
                     }
                     if (type.toUpperCase().equals("HELLO")) {
                         mandaWelcome();
