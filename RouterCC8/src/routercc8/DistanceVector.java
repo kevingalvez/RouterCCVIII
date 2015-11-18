@@ -64,6 +64,10 @@ public class DistanceVector {
                 if(costo == 99)
                 {
                     int total = Integer.valueOf(arr[2]) + costo;
+                    for(int j =0; j< dv.size();j++)
+                    {
+                        ///65465465
+                    }
                     dv.add(router + ":" + destino + ":" + Integer.toString(total));
                 }
 
@@ -216,7 +220,7 @@ public class DistanceVector {
             System.out.println("8nuevos Minimos: " + newmin.toString());
         }
         System.out.println(d.mins.toString());
-        System.out.println(d.getMin("A"));
+        System.out.println(d.getMin("D"));
 
         System.out.println(d.dv.toString());
     }
