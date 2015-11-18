@@ -58,11 +58,11 @@ public class Conexion implements Runnable {
             outToServer.flush();
 
             //Check que inserver devuelva welcome
-            //fn.out(":mandaHello:Welcome:" + inServer.readLine());
-            //fn.out(":mandaHello:Welcome:" + inServer.readLine());
+            System.out.println(":mandaHello:Welcome:" + inServer.readLine());
+            System.out.println(":mandaHello:Welcome:" + inServer.readLine());
             //cliente.close();
-            fn.out(":MandaHello:FROM:" + myName);
-            fn.out(":MandaHello:TYPE:HELLO");
+            System.out.println(":MandaHello:FROM:" + myName);
+            System.out.println(":MandaHello:TYPE:HELLO");
             return client;
 
         } catch (ConnectException ex) {
@@ -350,8 +350,8 @@ public class Conexion implements Runnable {
 
             ThreadPool thread = new ThreadPool(MaxThreads, 1);
             BufferedReader archivo = new BufferedReader(new FileReader("./src/routercc8/conf.ini"));
-            String read = "";
-            final String MyName = "B";
+            String read = "A";
+            final String MyName = "";
 
             HashMap s = new HashMap();
             HashMap sockets = new HashMap();

@@ -19,6 +19,9 @@ public class Aplicacion extends javax.swing.JFrame {
         jLabel1.setText("FROM");
         jLabel2.setText("TO");
         jLabel3.setText("MSG");
+        jTextField1.setText("");
+        jTextField2.setText("");
+        jButton1.setText("ENVIAR");
     }
 
     /**
