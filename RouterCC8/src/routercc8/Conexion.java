@@ -27,7 +27,6 @@ public class Conexion implements Runnable {
     int kill = 0;
     Timer killswitch;
     String connectedTo = "";
-    
 
     //new Conexion(connectionSocket, keepalive, "A", msgrouter,  portNumber,s);
     public Conexion(Socket s, int ka, String mn, int msgRouter, int port, HashMap adyacentes, HashMap sockEscritura) {
@@ -47,7 +46,7 @@ public class Conexion implements Runnable {
         try {
 
             Socket client = new Socket();
-            client.connect(new InetSocketAddress(IP, port), 500);
+            client.connect(new InetSocketAddress(IP, port), 2000);
             BufferedWriter outToServer = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()));
             BufferedReader inServer = new BufferedReader(new InputStreamReader(client.getInputStream()));
             outToServer.write("From:" + myName);
@@ -62,7 +61,8 @@ public class Conexion implements Runnable {
             System.out.println(":mandaHello:Welcome:" + inServer.readLine());
             System.out.println(":mandaHello:Welcome:" + inServer.readLine());
             //cliente.close();
-            
+            System.out.println("CLIENTE:EsperaRespuesta:Welcome " + from);
+
             return client;
 
         } catch (ConnectException ex) {
@@ -70,7 +70,7 @@ public class Conexion implements Runnable {
             return null;
 
         } catch (SocketTimeoutException e) {
-            
+
             System.out.println(":MandaHello: Server " + IP + " not listening on port " + port);
             return null;
 
@@ -166,7 +166,7 @@ public class Conexion implements Runnable {
                 } else if (arr[0].toUpperCase().equals("TYPE")) {
                     type = arr[1];
                     if (type.toUpperCase().equals("WELCOME")) {
-                        System.out.println("CLIENTE:EsperaRespuesta:Welcome " + from);
+
                         this.cliente = (Socket) sockEscritura.get(from);
 //                        Iterator entries = dv.mins.entrySet().iterator();
 //                        Vector newmin = new Vector();
@@ -227,24 +227,21 @@ public class Conexion implements Runnable {
                             }
 
                         }, 0, msgRouter * keepalive);
-
                     }
                     if (type.toUpperCase().equals("HELLO")) {
                         mandaWelcome();
                         Socket salida = (Socket) sockEscritura.get(from);
 
-                        if (salida!=null) {
+                        if (salida != null) {
                             cliente = salida;
+
                         } else {
                             String IP = adyacentes.get(from).toString();
                             cliente = new Socket(IP, port);
                             mandaHello(IP, port, myname);
                             System.out.println(":esperaRespuesta:Hello " + IP);
                         }
-
-                        
-                        
-
+                        mandaMinimos(dv.dv, adyacentes);
                         //check if already said Hello mandaHello
                         //HELLO MANDA Y WELCOME USA EL MISMO SOCKET!!!
                         timer = new Timer();
@@ -269,6 +266,33 @@ public class Conexion implements Runnable {
                             }
 
                         }, 0, msgRouter);
+                        killswitch = new Timer();
+                        killswitch.scheduleAtFixedRate(new TimerTask() {
+
+                            @Override
+                            public void run() {
+                                kill++;
+
+                                if (kill >= keepalive) {
+                                    dv.recibeMinimo(myname, connectedTo, 99);
+                                    Vector newmin = dv.calcular();
+                                    System.out.println("Kill Calcular");
+                                    System.out.println("Kill DVmin." + dv.mins.toString());
+                                    System.out.println("Kill DV" + dv.dv.toString());
+                                    if (!newmin.isEmpty()) {
+                                        //Enviar Minimos Nuevos
+
+                                        mandaMinimos(newmin, adyacentes);
+                                    } else {
+                                        System.out.println("Kill nuevos Minimos: " + newmin.toString());
+                                    }
+                                    timer.cancel();
+                                    killswitch.cancel();
+                                }
+                            }
+
+                        }, 0, msgRouter * keepalive);
+
                     }
                     if (type.toUpperCase().equals("DV")) {
                         String[] message = inFromServer.readLine().split(":");
@@ -350,8 +374,8 @@ public class Conexion implements Runnable {
 
             ThreadPool thread = new ThreadPool(MaxThreads, 1);
             BufferedReader archivo = new BufferedReader(new FileReader("./src/routercc8/conf.ini"));
-            String read = "B";
-            final String MyName = "";
+            String read = "";
+            final String MyName = "B";
 
             HashMap s = new HashMap();
             HashMap sockets = new HashMap();
