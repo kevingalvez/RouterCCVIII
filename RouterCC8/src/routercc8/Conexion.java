@@ -70,7 +70,8 @@ public class Conexion implements Runnable {
             return null;
 
         } catch (SocketTimeoutException e) {
-            fn.out(":MandaHello: Server " + IP + " not listening on port " + port);
+            //NO fn.out because it has not been initiated
+            System.out.println(":MandaHello: Server " + IP + " not listening on port " + port);
             return null;
 
         } catch (Exception e) {
