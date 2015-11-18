@@ -61,7 +61,7 @@ public class Conexion implements Runnable {
             System.out.println(":mandaHello:Welcome:" + inServer.readLine());
             System.out.println(":mandaHello:Welcome:" + inServer.readLine());
             //cliente.close();
-            System.out.println("CLIENTE:EsperaRespuesta:Welcome " + from);
+            
 
             return client;
 
@@ -241,6 +241,7 @@ public class Conexion implements Runnable {
                             mandaHello(IP, port, myname);
                             System.out.println(":esperaRespuesta:Hello " + IP);
                         }
+                        System.out.println("CLIENTE:EsperaRespuesta:Welcome " + from);
                         mandaMinimos(dv.dv, adyacentes);
                         //check if already said Hello mandaHello
                         //HELLO MANDA Y WELCOME USA EL MISMO SOCKET!!!
