@@ -49,6 +49,110 @@ public class DistanceVector {
         }
 
     }
+    
+    public DistanceVector()
+    {
+        this.nombre = "A";
+        String read;
+        hasChanged = true;
+        
+        try {
+        archivo = new BufferedReader(new FileReader("./src/routercc8/conf.ini"));
+        while ((read = archivo.readLine()) != null) {
+            String[] arr = read.split(":");
+            dv.add(nombre + ":" + arr[0] + ":" + arr[1]);
+            adyacentes++;
+            ady.put(arr[0], 0); //saber cuales son adyacentes
+            mins.put(arr[0], arr[0] + ":" + arr[1]);
+            //A-B:3
+            //A-C:23
+        }        
+        
+        Vector newmin = new Vector();
+        System.out.println("Start:" + mins.toString());
+        System.out.println(dv.toString());
+
+        recibeMinimo("A", "B", 3);
+        recibeMinimo("A", "C", 23);
+        newmin = calcular();
+        if (!newmin.isEmpty()) {
+            System.out.println("1nuevos Minimos: " + newmin.toString());
+        }
+        System.out.println(mins.toString());
+        System.out.println(dv.toString());
+
+        recibeMinimo("C", "D", 5);
+        recibeMinimo("C", "B", 2);
+        recibeMinimo("C", "A", 23);
+        newmin = calcular();
+        if (!newmin.isEmpty()) {
+            System.out.println("2nuevos Minimos: " + newmin.toString());
+        }
+        System.out.println(mins.toString());
+        System.out.println(dv.toString());
+
+        recibeMinimo("D", "C", 5);
+        newmin = calcular();
+        if (!newmin.isEmpty()) {
+            System.out.println("3nuevos Minimos: " + newmin.toString());
+        }
+        System.out.println(mins.toString());
+        System.out.println(dv.toString());
+
+        System.out.println("T1");
+        System.out.println();
+        //T  = 1;
+        recibeMinimo("A", "C", 5);
+        recibeMinimo("A", "D", 28);
+        newmin = calcular();
+        if (!newmin.isEmpty()) {
+            System.out.println("4nuevos Minimos: " + newmin.toString());
+        }
+        System.out.println(mins.toString());
+        System.out.println(dv.toString());
+
+        recibeMinimo("C", "A", 5);
+        newmin = calcular();
+        if (!newmin.isEmpty()) {
+            System.out.println("5nuevos Minimos: " + newmin.toString());
+        }
+        System.out.println(mins.toString());
+        System.out.println(dv.toString());
+
+        recibeMinimo("D", "A", 28);
+        recibeMinimo("D", "B", 7);
+        newmin = calcular();
+        if (!newmin.isEmpty()) {
+            System.out.println("6nuevos Minimos: " + newmin.toString());
+        }
+        System.out.println(mins.toString());
+        System.out.println(dv.toString());
+
+        //T=2
+        System.out.println("T2");
+        System.out.println();
+
+        recibeMinimo("D", "A", 10);
+        newmin = calcular();
+        if (!newmin.isEmpty()) {
+            System.out.println("7nuevos Minimos: " + newmin.toString());
+        }
+        System.out.println(mins.toString());
+        System.out.println(dv.toString());
+
+        recibeMinimo("A", "D", 99);
+        newmin = calcular();
+        if (!newmin.isEmpty()) {
+            System.out.println("8nuevos Minimos: " + newmin.toString());
+        }
+        System.out.println(mins.toString());
+        System.out.println(getMin("D"));
+
+        System.out.println(dv.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     public void recibeMinimo(String router, String destino, int costo) {
         if (destino != nombre || !ady.containsKey(router)) {

@@ -1,5 +1,5 @@
 [
 {
-    "port":"9080","keepalive":"5","maxthreads":"10","msgrouter":"5000"
+    "port":"9080","keepalive":"5","maxthreads":"10","msgrouter":"5000","path_inbox":"C:\\Temp\\Inbox\\","MyName":"A","port_forwarding":"9999"
 } 
 ]

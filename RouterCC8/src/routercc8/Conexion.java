@@ -14,7 +14,7 @@ import org.json.simple.parser.JSONParser;
 public class Conexion implements Runnable {
 
     Socket socket;
-    String name, myname;
+    String name, myname, path_inbox;
     int keepalive, msgRouter;
     int port;
     HashMap adyacentes;
@@ -366,11 +366,16 @@ public class Conexion implements Runnable {
 
     }
 
+    
+    
     public static void main(String args[]) throws Exception {
 
         JSONParser parser = new JSONParser();
         try {
-            final int MaxThreads, portNumber, keepalive, msgrouter;
+            final int MaxThreads, portNumber, keepalive, msgrouter, portNumberForwarding;
+            final String path_inbox;
+            final String MyName;
+            
             JSONArray arry = (JSONArray) parser.parse(new FileReader("./src/routercc8/conf.json"));
 
             JSONObject j = (JSONObject) arry.get(0);
@@ -378,13 +383,15 @@ public class Conexion implements Runnable {
             MaxThreads = Integer.parseInt(j.get("maxthreads").toString());
             keepalive = Integer.parseInt(j.get("keepalive").toString());
             msgrouter = Integer.parseInt(j.get("msgrouter").toString());
-
+            path_inbox =  j.get("path_inbox").toString();
+            MyName = j.get("MyName").toString();
+            portNumberForwarding = Integer.parseInt(j.get("port_forwarding").toString());
             ServerSocket welcomeSocket = new ServerSocket(portNumber);
 
             ThreadPool thread = new ThreadPool(MaxThreads, 1);
             BufferedReader archivo = new BufferedReader(new FileReader("./src/routercc8/conf.ini"));
             String read = "";
-            final String MyName = "B";
+            //final String MyName = "B";
 
             HashMap s = new HashMap();
             HashMap sockets = new HashMap();
@@ -414,21 +421,28 @@ public class Conexion implements Runnable {
 
             }.start();
 
-            ServerSocket msgSocket = new ServerSocket(1981);
-
+            //DistanceVector dv = new DistanceVector();
+            
+            //ServerSocket msgSocket = new ServerSocket(1981);
+            ServerSocket msgSocket = new ServerSocket(portNumberForwarding);
+            ThreadPool thread2 = new ThreadPool(MaxThreads, 1);
+            
             new Thread() {
 
                 public void run() {
                     while (true) {
                         try {
                             Socket connectionSocket = msgSocket.accept();
-                            BufferedReader inFromServer = null;
+                            MsgRequest request = new MsgRequest(connectionSocket, path_inbox, MyName, dv,portNumberForwarding);
+                            thread2.execute(request);
+                            
+                            /*BufferedReader inFromServer = null;
 
                             inFromServer = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
                             String message;
                             while (!(message = inFromServer.readLine()).equals("EOF")) {
                                 System.out.println(message);
-                            }
+                            }*/
 
                         } catch (Exception e) {
                             //break;
@@ -437,6 +451,13 @@ public class Conexion implements Runnable {
                     }
                 }
             }.start();
+            
+            new Thread() {
+
+                public void run() {
+                    new Aplicacion(path_inbox).setVisible(true);
+                }
+            }.start();            
         } catch (Exception e) {
             e.printStackTrace();
 

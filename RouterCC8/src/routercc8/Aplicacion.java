@@ -5,6 +5,19 @@
  */
 package routercc8;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.net.Socket;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.DefaultListModel;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author KevinAlfonso
@@ -14,15 +27,43 @@ public class Aplicacion extends javax.swing.JFrame {
     /**
      * Creates new form Aplicacion
      */
+    
+    String path_inbox;
+    
+    public Aplicacion(String path_inbox) {
+        initComponents();
+        jLabel1.setText("FROM");
+        jLabel2.setText("TO");
+        jLabel3.setText("MSG");
+        jLabel4.setText("Mensajes");
+        
+        jTextField1.setText("");
+        jTextField2.setText("");
+        list1.removeAll();
+        
+        jButton1.setText("ENVIAR");
+        jButton2.setText("REFRESH");
+        jButton3.setText("LIMPIAR");
+        
+        this.path_inbox = path_inbox;
+    }
+    
     public Aplicacion() {
         initComponents();
         jLabel1.setText("FROM");
         jLabel2.setText("TO");
         jLabel3.setText("MSG");
+        jLabel4.setText("Mensajes");
+        
         jTextField1.setText("");
         jTextField2.setText("");
+        list1.removeAll();
+        
         jButton1.setText("ENVIAR");
-    }
+        jButton2.setText("REFRESH");
+        jButton3.setText("LIMPIAR");
+        
+    }    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -41,6 +82,10 @@ public class Aplicacion extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
         jButton1 = new javax.swing.JButton();
+        jLabel4 = new javax.swing.JLabel();
+        list1 = new java.awt.List();
+        jButton2 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -64,26 +109,68 @@ public class Aplicacion extends javax.swing.JFrame {
         jScrollPane1.setViewportView(jTextArea1);
 
         jButton1.setText("jButton1");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        jLabel4.setText("jLabel4");
+
+        list1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                list1MouseClicked(evt);
+            }
+        });
+
+        jButton2.setText("jButton2");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
+        jButton3.setText("jButton3");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(47, 47, 47)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jButton1)
                     .addGroup(layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jButton2))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addGap(47, 47, 47)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel3)
                             .addComponent(jLabel2)
                             .addComponent(jLabel1))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 259, Short.MAX_VALUE)
-                            .addComponent(jTextField1)
-                            .addComponent(jTextField2))))
-                .addContainerGap(56, Short.MAX_VALUE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 259, Short.MAX_VALUE)
+                                .addComponent(jTextField1)
+                                .addComponent(jTextField2))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addComponent(jButton3)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButton1)))
+                        .addGap(0, 1, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addGap(85, 85, 85)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel4)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addComponent(list1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                .addGap(55, 55, 55))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -101,8 +188,16 @@ public class Aplicacion extends javax.swing.JFrame {
                     .addComponent(jLabel3)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(jButton1)
-                .addContainerGap(63, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton1)
+                    .addComponent(jButton3))
+                .addGap(5, 5, 5)
+                .addComponent(jLabel4)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(list1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton2)
+                .addContainerGap(29, Short.MAX_VALUE))
         );
 
         pack();
@@ -111,6 +206,89 @@ public class Aplicacion extends javax.swing.JFrame {
     private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField2ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField2ActionPerformed
+
+    
+    private void limpiar()
+    {
+        jTextField1.setText("");
+        jTextField2.setText("");
+        jTextArea1.setText("");
+    }
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        try 
+        {
+            Socket clientSocket = new Socket("localhost", 9999);
+            BufferedWriter outToServer = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+            outToServer.write("FROM:" + jTextField1.getText());
+            outToServer.newLine();
+            outToServer.write("TO:" + jTextField2.getText());
+            outToServer.newLine();
+            outToServer.write("MSG:" + jTextArea1.getText());
+            outToServer.newLine();
+            outToServer.write("EOF");
+            outToServer.newLine();
+            outToServer.flush();
+            outToServer.close();
+            limpiar();
+            JOptionPane.showMessageDialog(null,"Mensaje enviado exitosamente!","Aviso",JOptionPane.INFORMATION_MESSAGE);
+        }  catch (Exception e) {
+            JOptionPane.showMessageDialog(null,"Ocurrio un error!","Error",JOptionPane.ERROR_MESSAGE);            
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+        // Aquí la carpeta donde queremos buscar
+        list1.removeAll();
+        String path = path_inbox; 
+
+        String files;
+        File folder = new File(path);
+        File[] listOfFiles = folder.listFiles(); 
+
+        for (int i = 0; i < listOfFiles.length; i++)         {
+
+            if (listOfFiles[i].isFile())             {
+                files = listOfFiles[i].getName();
+                list1.add(files);
+                //System.out.println(files);
+            }
+        }        
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void list1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_list1MouseClicked
+        // TODO add your handling code here:
+        BufferedReader archivo;
+        try {
+            archivo = new BufferedReader(new FileReader(path_inbox+list1.getSelectedItem()));
+            String read;
+            
+        int paso = 0;
+        while ((read = archivo.readLine()) != null) {
+            String[] arr = read.split(":");
+            switch (paso) {
+                case 0: jTextField1.setText(arr[1]); break;
+                case 1: jTextField2.setText(arr[1]); break;
+                case 2: jTextArea1.setText(arr[1]); break;
+            }
+            paso++;
+            //A-B:3
+            //A-C:23
+        }             
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Aplicacion.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Aplicacion.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }//GEN-LAST:event_list1MouseClicked
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        // TODO add your handling code here:
+        limpiar();
+    }//GEN-LAST:event_jButton3ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -149,12 +327,16 @@ public class Aplicacion extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
+    private java.awt.List list1;
     // End of variables declaration//GEN-END:variables
 }
