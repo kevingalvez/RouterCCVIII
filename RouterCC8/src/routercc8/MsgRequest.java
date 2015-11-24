@@ -65,6 +65,9 @@ public class MsgRequest implements Runnable{
             outToServer.flush();
             outToServer.close();
             clientSocket.close();
+            System.out.println("FROM:" + msgsequence.get("FROM").toString());
+            System.out.println("TO:" + msgsequence.get("TO").toString());
+            System.out.println("MSG:" + msgsequence.get("MSG").toString());
     }    
     
     public void saveMail(HashMap msgsequence)
@@ -165,6 +168,8 @@ public class MsgRequest implements Runnable{
             if (msgsequence.get("TO").toString().toUpperCase().equals(this.MyName)) {
                 saveMail(msgsequence);
             } else {
+                System.out.println("SEEEND MESSSAGE GETMIN:" +dv.getMin(msgsequence.get("TO").toString()) );
+                System.out.println(getIP(dv.getMin(msgsequence.get("TO").toString())));
                 SendMail(getIP(dv.getMin(msgsequence.get("TO").toString())),msgsequence);
             }
             

@@ -218,7 +218,7 @@ public class Aplicacion extends javax.swing.JFrame {
         // TODO add your handling code here:
         try 
         {
-            Socket clientSocket = new Socket("localhost", 9999);
+            Socket clientSocket = new Socket("localhost", 1981);
             BufferedWriter outToServer = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
             outToServer.write("FROM:" + jTextField1.getText());
             outToServer.newLine();

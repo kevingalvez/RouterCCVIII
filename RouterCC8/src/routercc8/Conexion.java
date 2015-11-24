@@ -98,7 +98,7 @@ public class Conexion implements Runnable {
 
         } catch (Exception e) {
             System.out.println(":MandaKeepAlive:KeepAliveNotReached to:" + connectedTo);
-            //e.printStackTrace();
+           // e.printStackTrace();
         }
     }
 
@@ -118,9 +118,22 @@ public class Conexion implements Runnable {
             System.out.println("Servidor:mandaMinimos:Type:DV");
             System.out.println("Servidor:mandaMinimos:Len:" + dv.size());
             for (int i = 0; i < dv.size(); i++) {
-                outToServer.write(dv.get(i).toString());
+                String [] enviar = dv.get(i).toString().split(":");
+                
+                int a,b;
+                if(enviar.length==3)
+                {
+                    a=1;
+                    b=2;
+                }
+                else
+                {
+                    a=0;
+                    b=1;
+                }
+                outToServer.write(enviar[a]+":"+enviar[b]);
                 outToServer.newLine();
-                System.out.println("Servidor:mandaMinimos:for:dvGet(i):" + dv.get(i).toString());
+                System.out.println("Servidor:mandaMinimos:for:dvGet(i):" + enviar[a]+":"+enviar[b]);
             }
             outToServer.flush();
 
@@ -267,32 +280,32 @@ public class Conexion implements Runnable {
                             }
 
                         }, 0, msgRouter);
-                        killswitch = new Timer();
-                        killswitch.scheduleAtFixedRate(new TimerTask() {
-
-                            @Override
-                            public void run() {
-                                kill++;
-
-                                if (kill >= keepalive) {
-                                    dv.recibeMinimo(myname,connectedTo, 99);
-                                    Vector newmin = dv.calcular();
-                                    System.out.println("Kill Calcular");
-                                    System.out.println("Kill DVmin." + dv.mins.toString());
-                                    System.out.println("Kill DV" + dv.dv.toString());
-                                    if (!newmin.isEmpty()) {
-                                        //Enviar Minimos Nuevos
-
-                                        mandaMinimos(newmin, adyacentes);
-                                    } else {
-                                        System.out.println("Kill nuevos Minimos: " + newmin.toString());
-                                    }
-                                    timer.cancel();
-                                    killswitch.cancel();
-                                }
-                            }
-
-                        }, 0, msgRouter );
+//                        killswitch = new Timer();
+//                        killswitch.scheduleAtFixedRate(new TimerTask() {
+//
+//                            @Override
+//                            public void run() {
+//                                kill++;
+//
+//                                if (kill >= keepalive) {
+//                                    dv.recibeMinimo(myname,connectedTo, 99);
+//                                    Vector newmin = dv.calcular();
+//                                    System.out.println("Kill Calcular");
+//                                    System.out.println("Kill DVmin." + dv.mins.toString());
+//                                    System.out.println("Kill DV" + dv.dv.toString());
+//                                    if (!newmin.isEmpty()) {
+//                                        //Enviar Minimos Nuevos
+//
+//                                        mandaMinimos(newmin, adyacentes);
+//                                    } else {
+//                                        System.out.println("Kill nuevos Minimos: " + newmin.toString());
+//                                    }
+//                                    timer.cancel();
+//                                    killswitch.cancel();
+//                                }
+//                            }
+//
+//                        }, 0, msgRouter );
 
                     }
                     if (type.toUpperCase().equals("DV")) {
@@ -301,12 +314,12 @@ public class Conexion implements Runnable {
                             String[] ady = inFromServer.readLine().split(":");
                             try
                             {
-                            System.out.println("CLIENTE:" + from + ":EsperaRespuesta:DV:" + ady[1] + ":" + ady[2]);
-                            dv.recibeMinimo(from, ady[1], Integer.parseInt(ady[2]));
+                            System.out.println("CLIENTE:" + from + ":EsperaRespuesta:DV:" + ady[0] + ":" + ady[1]);
+                            dv.recibeMinimo(from, ady[0], Integer.parseInt(ady[1]));
                             }
                             catch (Exception e)
                             {
-                                System.out.println("ERROR:"+ from + ":ADY:" + ady[1]);
+                                System.out.println("ERROR:"+ from + ":ADY:" + ady[0] +","+ ady[1]);
                                 e.printStackTrace();
                             }
                         }
